@@ -1014,7 +1014,7 @@ const App: React.FC = () => {
   const t = TRANSLATIONS[language];
   const facePoints = getFacePoints(language, mapMode);
   const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
-  const apiKey = ""; 
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
   // --- Handlers ---
   const fileToBase64 = (file: File): Promise<string> => {
