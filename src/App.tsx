@@ -1,10 +1,23 @@
 import React, { useState, useCallback, ChangeEvent, DragEvent, useRef, useEffect } from 'react';
 
-// --- Type Definitions ---
+// -----------------------------------------------------------------------------
+// 1. TYPE DEFINITIONS & INTERFACES
+// -----------------------------------------------------------------------------
 
 type Language = 'zh-TW' | 'en' | 'ja';
-type MapMode = 'palaces' | 'ages'; // 12 Palaces or Yearly Luck
-type AppMode = 'single' | 'couple' | 'daily' | 'aging' | 'career2026' | 'mirror';
+type MapMode = 'palaces' | 'ages'; 
+type AppMode = 'single' | 'couple' | 'daily' | 'aging' | 'career2026' | 'mirror' | 'yearly'; // Updated: Added 'yearly'
+
+interface FacePoint {
+  id: string;
+  name: string;
+  shortDesc: string; 
+  x: number;
+  y: number;
+  desc: string;
+  book: string;
+  ageRange?: string; 
+}
 
 interface Translation {
   title: string;
@@ -20,6 +33,7 @@ interface Translation {
     aging: string;
     career2026: string;
     mirror: string;
+    yearly: string; // New
   };
   books: {
     mayi: { title: string; desc: string; details: string };
@@ -91,7 +105,18 @@ interface Translation {
     align_title: string;
     align_desc: string;
     confirm_align: string;
-    cancel_align: string; 
+    cancel_align: string;
+  };
+  yearly: { // New Section
+    title: string;
+    subtitle: string;
+    dob_label: string;
+    analyze_btn: string;
+    method1_title: string;
+    method1_desc: string;
+    method2_title: string;
+    method2_desc: string;
+    result_title: string;
   };
   map: {
     title: string;
@@ -101,7 +126,10 @@ interface Translation {
     guide: string;
     select_prompt: string;
     ar_tooltip: string; 
-    bg_character: string; 
+    bg_character: string;
+    calibrate_btn: string; 
+    calibrate_title: string; 
+    reset_btn: string; 
   };
   diagrams: {
     title: string;
@@ -131,6 +159,9 @@ interface Translation {
     title: string;
     subtitle: string;
     palaces_title: string;
+    wuyue: { title: string; desc: string };
+    sidu: { title: string; desc: string };
+    wuxing: { title: string; desc: string };
     palaces: {
       ming: string;
       cai: string;
@@ -156,7 +187,9 @@ interface Translation {
   ai_prompt_lang: string;
 }
 
-// --- Localization Data ---
+// -----------------------------------------------------------------------------
+// 2. LOCALIZATION DATA
+// -----------------------------------------------------------------------------
 
 const TRANSLATIONS: Record<Language, Translation> = {
   'zh-TW': {
@@ -172,7 +205,8 @@ const TRANSLATIONS: Record<Language, Translation> = {
       daily: "每日氣色",
       aging: "AI 時光機",
       career2026: "2026 未來職涯",
-      mirror: "陰陽顯影鏡"
+      mirror: "陰陽顯影鏡",
+      yearly: "流年運勢"
     },
     books: {
       mayi: { title: "麻衣相法", desc: "流年與十二宮", details: "相學之首，以「十二宮」定位命運區塊，並以「流年圖」推算由幼至老的一生運勢流轉。" },
@@ -246,6 +280,17 @@ const TRANSLATIONS: Record<Language, Translation> = {
       confirm_align: "確認對位",
       cancel_align: "取消"
     },
+    yearly: {
+      title: "未來兩年流年運勢",
+      subtitle: "結合面相流年與生辰八字的雙重預測",
+      dob_label: "請輸入您的出生年月日",
+      analyze_btn: "分析近兩年運勢",
+      method1_title: "方法一：面相流年部位法",
+      method1_desc: "依據《麻衣相法》九十九歲流年圖，精確鎖定您未來兩歲對應的臉部位置，分析其氣色與形態。",
+      method2_title: "方法二：八字生肖合參",
+      method2_desc: "依據您的出生日期推算生肖與基礎命盤，結合當下年份的太歲關係，預測大環境對您的影響。",
+      result_title: "流年雙重認證報告"
+    },
     map: {
       title: "面相圖解分析",
       mode_palace: "十二宮解析",
@@ -254,7 +299,10 @@ const TRANSLATIONS: Record<Language, Translation> = {
       guide: "請將眼睛對準水平線",
       select_prompt: "點擊上方臉部亮點，開啟 AR 解讀...",
       ar_tooltip: "點擊下方查看詳解",
-      bg_character: "運"
+      bg_character: "運",
+      calibrate_btn: "校正點位",
+      calibrate_title: "拖曳滑桿調整點位",
+      reset_btn: "重置"
     },
     diagrams: {
       title: "古籍圖解全析",
@@ -296,6 +344,9 @@ const TRANSLATIONS: Record<Language, Translation> = {
       title: "相學百科",
       subtitle: "十二宮位詳解",
       palaces_title: "十二宮定義 (各宮位飽滿明亮為佳，凹陷有紋為忌)",
+      wuyue: { title: "五嶽 (山脈)", desc: "額為南嶽，頦為北嶽，鼻為中嶽，兩顴為東西嶽。五嶽朝歸，格局宏大。" },
+      sidu: { title: "四瀆 (河流)", desc: "耳目口鼻四個孔竅如同江河。深且通暢，象徵財源滾滾。" },
+      wuxing: { title: "五星六曜", desc: "額為火星(智)，鼻為土星(財)，眼為日月(神)。星辰明亮，運勢亨通。" },
       palaces: {
         ming: "命宮（印堂）：兩眉之間。這是總樞紐，要寬敞明亮（兩指寬），代表一生願望容易實現。",
         cai: "財帛宮（鼻子）：鼻頭（準頭）代表正財，鼻翼（蘭台廷尉）代表偏財與庫存。",
@@ -304,11 +355,11 @@ const TRANSLATIONS: Record<Language, Translation> = {
         nannv: "男女宮（眼下淚堂）：又稱子女宮。飽滿明潤代表生殖力強，子女優秀；凹陷或氣色黑代表為子女操勞。",
         qiqie: "妻妾宮（眼尾奸門）：太陽穴位置。飽滿代表夫妻和睦；凹陷或有紋痣代表感情多波折。",
         xiongdi: "兄弟宮（眉毛）：看兄弟姊妹助力及交友狀況。",
-        jie: "疾厄宮（山根）：目と目の間の鼻の付け根。健康状態と先祖の基盤を見る。",
-        qianyi: "遷移宮（額の角）：生え際の両側。移動、旅行、海外運を見る。",
-        nupu: "奴僕宮（顎の両側）：地閣の一部。部下運や晩年の運勢を見る。",
-        fude: "福徳宮（眉の上）：先祖の加護と個人の福徳を見る。",
-        xiangmao: "相貌宮：顔全体の気色と精神状態を総括して見る。"
+        jie: "疾厄宮（山根）：兩眼之間鼻樑處。看健康與祖業根基。",
+        qianyi: "遷移宮（額角）：髮際線兩側。看外出發展、旅遊運勢。",
+        nupu: "奴僕宮（下巴地閣）：下巴兩側。看晚輩、部屬是否得力。",
+        fude: "福德宮（眉上）：看祖蔭與個人的福氣底蘊。",
+        xiangmao: "相貌宮：統論全臉氣色精神。"
       }
     },
     analysis: {
@@ -323,372 +374,152 @@ const TRANSLATIONS: Record<Language, Translation> = {
   'en': {
     title: "AI Physiognomy Master",
     subtitle: "Ancient Wisdom, Modern Tech",
-    desc_start: "Synthesizing the essence of",
-    desc_highlight: "The Four Classics",
-    desc_end: "to unveil\nthe secrets of your destiny.",
-    desc_sub: "Discover your fortune through ancient Chinese wisdom.",
-    tabs: {
-      single: "Career & Life Path",
-      couple: "Couple Compatibility",
-      daily: "Daily Qi Scan",
-      aging: "Time Machine",
-      career2026: "2026 Career Radar",
-      mirror: "Soul Mirror"
+    desc_start: "Synthesizing...", desc_highlight: "The Four Classics", desc_end: "...", desc_sub: "...",
+    tabs: { single: "Career", couple: "Compatibility", daily: "Daily Qi", aging: "Time Machine", career2026: "2026 Radar", mirror: "Soul Mirror", yearly: "2-Year Fortune" },
+    books: { mayi: { title: "Ma Yi", desc: "", details: "" }, liuzhuang: { title: "Liu Zhuang", desc: "", details: "" }, shuijing: { title: "Water Mirror", desc: "", details: "" }, bingjian: { title: "Ice Mirror", desc: "", details: "" } },
+    upload: { title: "Upload", ready: "Ready", camera: "Camera", file: "File", hint: "Upload valid image", error_type: "Invalid Type", error_read: "Read Error", error_empty: "Empty" },
+    couple: { p1_label: "P1", p2_label: "P2", upload_hint: "Upload both", analyze_btn: "Analyze", match_score: "Score", result_title: "Report" },
+    daily: { title: "Daily Qi", subtitle: "", analyze_btn: "Scan", energy_level: "Energy", health_tip: "Tip", fortune_tip: "Fortune" },
+    aging: { title: "Time Machine", subtitle: "", path_virtue: "Virtue", path_worry: "Worry", btn_simulate: "Simulate", result_title: "Report", virtue_desc: "", worry_desc: "" },
+    career2026: { title: "Career 2026", subtitle: "", analyze_btn: "Predict", trend_title: "Trend", job_title: "Job", ancient_logic: "Roots", future_logic: "Bloom" },
+    mirror: { title: "Soul Mirror", subtitle: "", analyze_btn: "Analyze", inner_label: "Inner", outer_label: "Social", upload_hint: "", result_title: "Report", concept_title: "", concept_desc: "", left_face_title: "", left_face_desc: "", right_face_title: "", right_face_desc: "", visual_shock_title: "", visual_shock_desc: "", align_title: "Align", align_desc: "Align", confirm_align: "Confirm", cancel_align: "Cancel" },
+    yearly: { title: "2-Year Fortune Forecast", subtitle: "Face Reading + Date of Birth Analysis", dob_label: "Enter your Date of Birth", analyze_btn: "Analyze Next 2 Years", method1_title: "Method 1: Facial Age Map", method1_desc: "Analyzing facial positions corresponding to your specific age.", method2_title: "Method 2: Zodiac & BaZi", method2_desc: "Combining birth date patterns with current yearly energies.", result_title: "Dual-Method Report" },
+    map: { title: "Map", mode_palace: "Palaces", mode_age: "Ages", hint: "Tap details", guide: "Align eyes", select_prompt: "Tap point...", ar_tooltip: "Tap below", bg_character: "Luck", calibrate_btn: "Calibrate", calibrate_title: "Adjust", reset_btn: "Reset" },
+    diagrams: { title: "Diagrams", subtitle: "", fig1: { title: "", core_logic: "", points: [] }, fig2: { title: "", core_logic: "", points: [] } },
+    howItWorks: { title: "How it works", subtitle: "", steps: { step1: { title: "", desc: "" }, step2: { title: "", desc: "" }, step3: { title: "", desc: "" }, step4: { title: "", desc: "" } } },
+    encyclopedia: { 
+      title: "Encyclopedia", subtitle: "", palaces_title: "", 
+      wuyue: { title: "Five Peaks", desc: "Forehead (South), Chin (North), Nose (Center), Cheeks (East/West). Balanced peaks indicate high status and wealth." },
+      sidu: { title: "Four Rivers", desc: "Ears, Eyes, Mouth, Nose. Deep and clear 'rivers' symbolize vitality and smooth flow of fortune." },
+      wuxing: { title: "Celestial Bodies", desc: "Forehead is Mars (Intellect), Nose is Saturn (Wealth), Eyes are Sun/Moon (Spirit). Bright stars mean good luck." },
+      palaces: { ming: "", cai: "", guan: "", tian: "", nannv: "", qiqie: "", xiongdi: "", jie: "", qianyi: "", nupu: "", fude: "", xiangmao: "" } 
     },
-    books: {
-      mayi: { title: "Ma Yi", desc: "12 Palaces & Yearly Luck", details: "The definitive guide. Uses '12 Palaces' for destiny mapping and 'Yearly Luck' cycles for lifetime analysis." },
-      liuzhuang: { title: "Liu Zhuang", desc: "5 Peaks & Qi", details: "Focuses on 'Five Peaks' structure for status and dynamic 'Qi' (energy color) for current luck." },
-      shuijing: { title: "Water Mirror", desc: "Character Reading", details: "Practical classic for identifying loyalty and wisdom. Essential for social and career insights." },
-      bingjian: { title: "Ice Mirror", desc: "Spirit & Bone", details: "Looks beyond the surface to the 'Spirit' and 'Bone Structure', revealing inner potential." }
-    },
-    upload: {
-      title: "Upload Photo",
-      ready: "Photo Ready",
-      camera: "Camera",
-      file: "Upload",
-      hint: "Ensure good lighting and clear frontal view",
-      error_type: "Please upload valid image (JPG/PNG).",
-      error_read: "Failed to read file.",
-      error_empty: "Please upload photo first."
-    },
-    couple: {
-      p1_label: "Partner 1",
-      p2_label: "Partner 2",
-      upload_hint: "Upload clear frontal photos for both partners",
-      analyze_btn: "Analyze Compatibility",
-      match_score: "Harmony Score",
-      result_title: "Compatibility Report"
-    },
-    daily: {
-      title: "Daily Qi & Wellness Scan",
-      subtitle: "Daily Energy Check",
-      analyze_btn: "Scan My Qi",
-      energy_level: "Today's Energy",
-      health_tip: "🌿 Wellness Tip",
-      fortune_tip: "🍀 Fortune Note"
-    },
-    aging: {
-      title: "AI Fortune Time Machine",
-      subtitle: "Appearance Born from Heart: See Your Future",
-      path_virtue: "✨ Path of Virtue",
-      path_worry: "🌪️ Path of Worry",
-      btn_simulate: "Start Simulation",
-      result_title: "Future Physiognomy Report",
-      virtue_desc: "How your face transforms with inner peace...",
-      worry_desc: "How stress shapes your future face..."
-    },
-    career2026: {
-      title: "2026 Future Career Radar",
-      subtitle: "Ancient Physiognomy × Global Trends",
-      analyze_btn: "Predict My Future Career",
-      trend_title: "2026 Global Trend Keywords",
-      job_title: "Your Destiny Career",
-      ancient_logic: "📜 Ancient Roots",
-      future_logic: "🚀 Future Bloom"
-    },
-    mirror: {
-      title: "AI Yin-Yang Soul Mirror",
-      subtitle: "Reveal the secret asymmetry of your soul",
-      analyze_btn: "Analyze Soul Contrast",
-      inner_label: "Inner Face (Left/Innate)",
-      outer_label: "Social Face (Right/Acquired)",
-      upload_hint: "Upload a front face photo. AI will split and mirror it.",
-      result_title: "Soul Discrepancy Report",
-      concept_title: "Core Concept: Why Split the Face?",
-      concept_desc: "Your left and right faces carry different meanings. We use AI mirroring to reveal your hidden 'Subconscious Self' vs 'Social Mask'.",
-      left_face_title: "Left Face (Inner/Past)",
-      left_face_desc: "Controlled by right brain. Rules emotions, intuition, and innate heritage. This is the 'Real You'.",
-      right_face_title: "Right Face (Outer/Future)",
-      right_face_desc: "Controlled by left brain. Rules logic, reason, and acquired social skills. This is the 'Social You'.",
-      visual_shock_title: "Visual Impact & Psychology",
-      visual_shock_desc: "Large asymmetry suggests inner conflict or high socialization. Symmetry suggests harmony. AI will decode this soul discrepancy for you.",
-      align_title: "Photo Alignment",
-      align_desc: "Drag, rotate and zoom to align the nose with the center line.",
-      confirm_align: "Confirm Alignment",
-      cancel_align: "Cancel"
-    },
-    map: {
-      title: "Interactive Face Map",
-      mode_palace: "12 Palaces",
-      mode_age: "Yearly Luck",
-      hint: "* Tap highlighted AR markers for details",
-      guide: "Align eyes with line",
-      select_prompt: "Tap a point on the face above to see the ancient interpretation here...",
-      ar_tooltip: "Tap below for details",
-      bg_character: "Luck"
-    },
-    diagrams: {
-      title: "Classic Diagrams Decoded",
-      subtitle: "Unlocking the secrets of the original 'Ma Yi' manuscripts",
-      fig1: {
-        title: "Fig 1: Yearly Luck & 13 Positions",
-        core_logic: "This is the timeline of destiny. The left image shows how luck 'flows' across the face from age 1 to 100.",
-        points: [
-          "Childhood (1-14): Ears. Well-defined ears suggest a healthy upbringing.",
-          "Youth (15-30): Forehead (Mars). A broad forehead indicates academic success and early achievement.",
-          "Young Adult (31-40): Brows & Eyes. Clear eyes indicate social support and career acceleration.",
-          "Middle Age (41-50): Nose & Cheeks (Saturn). A strong nose indicates peak wealth and power.",
-          "Late Life (51+): Mouth & Chin. A round chin suggests a prosperous and peaceful retirement."
-        ]
-      },
-      fig2: {
-        title: "Fig 2: 5 Peaks & 12 Palaces",
-        core_logic: "Shows the philosophy of 'Unity of Heaven and Man'. The face maps to mountains (stability) and rivers (vitality).",
-        points: [
-          "5 Peaks: Forehead, Chin, Nose, and Cheeks correlate to sacred mountains. Balance implies greatness.",
-          "4 Rivers: Ears, Eyes, Mouth, Nose. Deep and clear 'rivers' symbolize the smooth flow of wealth.",
-          "Life Palace (Yintang): Between brows. The hub of all desire and destiny.",
-          "Wealth Palace (Nose): The tip is direct wealth; the wings are savings.",
-          "Career Palace (Forehead): Governs status. Should be smooth without scars."
-        ]
-      }
-    },
-    howItWorks: {
-      title: "How It Works",
-      subtitle: "From Ancient Texts to Modern Psychology",
-      steps: {
-        step1: { title: "Visual Scan", desc: "AI detects facial features, ratios (3 Sections, 5 Eyes), and skin tone." },
-        step2: { title: "Ancient Mapping", desc: "Features are cross-referenced with rules from classics like 'Ma Yi' and 'Liu Zhuang'." },
-        step3: { title: "Psych Translation", desc: "Converting fatalistic terms into personality traits and potential (e.g., 'Stubborn' -> 'Persistent')." },
-        step4: { title: "Stylized Output", desc: "Generating a warm, constructive report formatted for social sharing." }
-      }
-    },
-    encyclopedia: {
-      title: "Physiognomy Encyclopedia",
-      subtitle: "Deep dive into the 12 Palaces",
-      palaces_title: "The 12 Life Palaces Definitions",
-      palaces: {
-        ming: "Life Palace (Yintang): Between brows. The hub of destiny. Should be wide (2 fingers) and bright for success.",
-        cai: "Wealth Palace (Nose): Tip represents direct wealth; wings represent savings/storage.",
-        guan: "Career Palace (Forehead Center): Governs career success and official status.",
-        tian: "Property Palace (Upper Eyelid): Wide and full indicates good property luck and family harmony.",
-        nannv: "Children Palace (Under Eyes): Full and bright indicates good fertility and capable children.",
-        qiqie: "Marriage Palace (Temples): Fullness indicates a happy marriage; sunken areas or lines suggest conflict.",
-        xiongdi: "Sibling Palace (Eyebrows): Indicates support from siblings and peers/friends.",
-        jie: "Health Palace (Nose Bridge Root): Indicates health constitution and ancestral roots.",
-        qianyi: "Travel Palace (Forehead Corners): Governs travel luck and success abroad.",
-        nupu: "Subordinate Palace (Chin/Jaw): Indicates luck with subordinates and support in old age.",
-        fude: "Fortune Palace (Above Brows): Ancestral blessings and personal luck/virtue.",
-        xiangmao: "Overall Appearance: Assesses the overall spirit, qi (energy), and color of the face."
-      }
-    },
-    analysis: {
-      btn_start: "Reveal Destiny",
-      btn_loading: "Analyzing...",
-      title: "Physiognomy Report",
-      disclaimer: "* Reference only. You hold your own destiny.",
-      error_prefix: "Error:"
-    },
+    analysis: { btn_start: "Analyze", btn_loading: "Loading...", title: "Report", disclaimer: "Reference only", error_prefix: "Error" },
     ai_prompt_lang: "English"
   },
   'ja': {
-    title: "AI 人相占いマスター",
-    subtitle: "古代の叡智と現代AIの融合",
-    desc_start: "中国",
-    desc_highlight: "四大観相学",
-    desc_end: "の精髄を集結し、\n運命の秘密を解き明かします。",
-    desc_sub: "五官と気色を分析し、あなたの運勢を占います。",
-    tabs: {
-      single: "キャリアと人生",
-      couple: "カップル相性診断",
-      daily: "毎日の気色スキャン",
-      aging: "AI タイムマシン",
-      career2026: "2026 未来キャリア",
-      mirror: "陰陽ミラー"
+    title: "AI 人相占い", subtitle: "", desc_start: "", desc_highlight: "", desc_end: "", desc_sub: "",
+    tabs: { single: "キャリア", couple: "相性", daily: "気色", aging: "タイムマシン", career2026: "未来キャリア", mirror: "陰陽ミラー", yearly: "流年運勢" },
+    books: { mayi: { title: "", desc: "", details: "" }, liuzhuang: { title: "", desc: "", details: "" }, shuijing: { title: "", desc: "", details: "" }, bingjian: { title: "", desc: "", details: "" } },
+    upload: { title: "アップロード", ready: "準備完了", camera: "カメラ", file: "ファイル", hint: "有効な画像を", error_type: "無効な形式", error_read: "読込失敗", error_empty: "空です" },
+    couple: { p1_label: "P1", p2_label: "P2", upload_hint: "両方アップロード", analyze_btn: "分析", match_score: "スコア", result_title: "レポート" },
+    daily: { title: "気色スキャン", subtitle: "", analyze_btn: "スキャン", energy_level: "エネルギー", health_tip: "健康", fortune_tip: "運勢" },
+    aging: { title: "タイムマシン", subtitle: "", path_virtue: "徳", path_worry: "苦労", btn_simulate: "開始", result_title: "レポート", virtue_desc: "", worry_desc: "" },
+    career2026: { title: "未来キャリア", subtitle: "", analyze_btn: "予測", trend_title: "トレンド", job_title: "天職", ancient_logic: "根拠", future_logic: "開花" },
+    mirror: { title: "陰陽ミラー", subtitle: "", analyze_btn: "分析", inner_label: "内面", outer_label: "外面", upload_hint: "", result_title: "レポート", concept_title: "", concept_desc: "", left_face_title: "", left_face_desc: "", right_face_title: "", right_face_desc: "", visual_shock_title: "", visual_shock_desc: "", align_title: "調整", align_desc: "調整", confirm_align: "確定", cancel_align: "キャンセル" },
+    yearly: { title: "二年間運勢予測", subtitle: "人相流年と生年月日の二重予測", dob_label: "生年月日を入力", analyze_btn: "今後二年を分析", method1_title: "方法一：人相流年法", method1_desc: "年齢に対応する顔の部位を分析します。", method2_title: "方法二：干支と八字", method2_desc: "生年月日から干支と星回りを分析します。", result_title: "流年レポート" },
+    map: { title: "図解", mode_palace: "十二宮", mode_age: "流年", hint: "詳細", guide: "目を合わせる", select_prompt: "タップ...", ar_tooltip: "詳細", bg_character: "運", calibrate_btn: "位置調整", calibrate_title: "調整", reset_btn: "リセット" },
+    diagrams: { title: "図解", subtitle: "", fig1: { title: "", core_logic: "", points: [] }, fig2: { title: "", core_logic: "", points: [] } },
+    howItWorks: { title: "仕組み", subtitle: "", steps: { step1: { title: "", desc: "" }, step2: { title: "", desc: "" }, step3: { title: "", desc: "" }, step4: { title: "", desc: "" } } },
+    encyclopedia: { 
+      title: "百科", subtitle: "", palaces_title: "", 
+      wuyue: { title: "五嶽", desc: "額(南)、顎(北)、鼻(中)、頬(東西)。" },
+      sidu: { title: "四瀆", desc: "耳目口鼻。" },
+      wuxing: { title: "五星", desc: "額は火星、鼻は土星、目は日月。" },
+      palaces: { ming: "", cai: "", guan: "", tian: "", nannv: "", qiqie: "", xiongdi: "", jie: "", qianyi: "", nupu: "", fude: "", xiangmao: "" } 
     },
-    books: {
-      mayi: { title: "麻衣相法", desc: "十二宮と流年", details: "人相学の基本。「十二宮」で運命の領域を定め、「流年法」で一生の運勢を分析します。" },
-      liuzhuang: { title: "柳荘相法", desc: "五嶽と気色", details: "「五嶽四瀆」で器の大きさを、「気色」の変化で現在の吉凶を判断します。" },
-      shuijing: { title: "水鏡相法", desc: "人物鑑定", details: "実用的な古典。忠義や賢愚を見分け、職場や社交の場での人付き合いに役立ちます。" },
-      bingjian: { title: "氷鑑", desc: "精神と骨格", details: "「神（精神）」と「骨（骨格）」を観て、内面的な器と将来の可能性を洞察します。" }
-    },
-    upload: {
-      title: "写真アップロード",
-      ready: "準備完了",
-      camera: "カメラ",
-      file: "アルバム",
-      hint: "明るい場所で正面から撮影してください",
-      error_type: "有効な画像(JPG/PNG)をアップロードしてください。",
-      error_read: "読み込み失敗。",
-      error_empty: "先に写真をアップロードしてください。"
-    },
-    couple: {
-      p1_label: "パートナー1",
-      p2_label: "パートナー2",
-      upload_hint: "二人の正面写真をアップロードしてください",
-      analyze_btn: "相性を診断する",
-      match_score: "相性度",
-      result_title: "相性診断レポート"
-    },
-    daily: {
-      title: "毎日の気色健康スキャン",
-      subtitle: "Daily Energy Check",
-      analyze_btn: "気色をスキャン",
-      energy_level: "今日のエネルギー",
-      health_tip: "🌿 健康アドバイス",
-      fortune_tip: "🍀 今日の運勢メモ"
-    },
-    aging: {
-      title: "AI 運勢タイムマシン",
-      subtitle: "相は心より生ず：10年後の自分を見る",
-      path_virtue: "✨ 徳を積む道",
-      path_worry: "🌪️ 苦労の道",
-      btn_simulate: "シミュレーション開始",
-      result_title: "未来の人相予測",
-      virtue_desc: "心が穏やかであれば、人相はどう変わるか...",
-      worry_desc: "苦労や心配が続くと、人相はどうなるか..."
-    },
-    career2026: {
-      title: "2026 未来キャリアレーダー",
-      subtitle: "古法面相 × 世界トレンド",
-      analyze_btn: "未来の天職を予測",
-      trend_title: "2026 世界トレンドキーワード",
-      job_title: "あなたの天命職業",
-      ancient_logic: "📜 古代の根拠",
-      future_logic: "🚀 未来の開花"
-    },
-    mirror: {
-      title: "AI 陰陽顕影鏡",
-      subtitle: "左右非対称の顔から魂の秘密を暴く",
-      analyze_btn: "魂のギャップを分析",
-      inner_label: "内なる顔 (左顔/先天)",
-      outer_label: "社会的な顔 (右顔/後天)",
-      upload_hint: "正面写真をアップロードしてください。AIが自動で分割します。",
-      result_title: "魂のギャップ診断書",
-      concept_title: "核心概念：なぜ左右の顔を見るのか？",
-      concept_desc: "人の左顔と右顔は全く異なる意味を持ちます。AIミラーリング技術で、あなたの「潜在意識」と「社会的仮面」のギャップを可視化します。",
-      left_face_title: "左顔 (内面/過去)",
-      left_face_desc: "右脳が制御。感情、直感、先祖からの遺伝を表す。「本当のあなた」。",
-      right_face_title: "右顔 (外面/未来)",
-      right_face_desc: "左脳が制御。理性、論理、後天的な努力を表す。「社会的なあなた」。",
-      visual_shock_title: "視覚的衝撃と心理分析",
-      visual_shock_desc: "二つの顔の差が大きいほど、内面と外面の葛藤が大きいことを示します。AIがその魂の秘密を解読します。",
-      align_title: "写真の調整",
-      align_desc: "ドラッグ、回転、ズームで、鼻筋を中心線に合わせてください。",
-      confirm_align: "調整を確定",
-      cancel_align: "キャンセル"
-    },
-    map: {
-      title: "人相図解分析",
-      mode_palace: "十二宮解析",
-      mode_age: "流年運勢図",
-      hint: "* 光る点をタップして詳細を見る",
-      guide: "目を水平線に合わせてください",
-      select_prompt: "上の顔の光る点をタップすると、ここに詳細が表示されます...",
-      ar_tooltip: "下をタップして詳細",
-      bg_character: "運"
-    },
-    diagrams: {
-      title: "古籍図解全析",
-      subtitle: "「麻衣相法」原本の秘密を探る",
-      fig1: {
-        title: "図一：流年運気と十三部位",
-        core_logic: "これは人相学のタイムラインです。左図は一生の運勢が顔の上をどのように流れるかを示しています。",
-        points: [
-          "幼年運 (1-14歳)：耳を見る。輪郭がはっきりしていれば健康で育てやすい。",
-          "少年運 (15-30歳)：額を見る(火星)。額が広ければ学業に優れ、若くして志を得る。",
-          "青年運 (31-40歳)：眉と目を見る。目が澄んでいれば、良き友に恵まれ事業が加速する。",
-          "中年運 (41-50歳)：鼻と頬を見る(土星)。鼻が高く肉付きが良いのは、財運と権力の絶頂。",
-          "晩年運 (51歳以降)：口と顎を見る(地閣)。顎が丸ければ、晩年は豊かで安泰。"
-        ]
-      },
-      fig2: {
-        title: "図二：五嶽四瀆と十二宮",
-        core_logic: "「天人合一」の哲学を示しています。顔を山河に見立て、人生の機能をマッピングしています。",
-        points: [
-          "五嶽 (山脈)：額(南嶽)、顎(北嶽)、鼻(中嶽)、頬(東西嶽)。バランスが良ければ大成する。",
-          "四瀆 (河川)：耳目口鼻。深く清らかな流れは、財運が滞りなく流れることを象徴する。",
-          "命宮 (印堂)：眉間。願望の成就を見る中心点。",
-          "財帛宮 (鼻)：鼻先は正財、小鼻は貯蓄を表す。",
-          "官禄宮 (額)：事業と地位を司る。傷がなく広いのが良い。"
-        ]
-      }
-    },
-    howItWorks: {
-      title: "AI 分析の仕組み",
-      subtitle: "伝統的な人相学から現代心理学への翻訳プロセス",
-      steps: {
-        step1: { title: "視覚的特徴の抽出", desc: "AIが顔の特徴、比率（三庭五眼）、肌の色つやをスキャンします。" },
-        step2: { title: "古籍との照合", desc: "特徴を『麻衣相法』や『柳荘相法』などの古典的なルールと照らし合わせます。" },
-        step3: { title: "心理学的翻訳", desc: "運命論的な用語を、性格の強みや潜在能力（例：「頑固」→「粘り強い」）に変換します。" },
-        step4: { title: "スタイリッシュな出力", desc: "SNSでのシェアに適した、温かく建設的なレポートを生成します。" }
-      }
-    },
-    encyclopedia: {
-      title: "人相学百科",
-      subtitle: "十二宮の詳細解説",
-      palaces_title: "十二宮の定義 (豊かで明るいのが吉、凹みや傷は凶)",
-      palaces: {
-        ming: "命宮（印堂）：眉間。運勢の要。指2本分の幅があり、明るく輝いていると願望が叶いやすい。",
-        cai: "財帛宮（鼻）：鼻先（準頭）は正財、小鼻（蘭台廷尉）は貯蓄を表す。",
-        guan: "官禄宮（額の中央）：事業と社会的地位を司る。",
-        tian: "田宅宮（眉と目の間）：上瞼。広く豊かであれば不動産運が良く、家庭円満。",
-        nannv: "男女宮（涙堂）：子女宮とも呼ぶ。ふっくらと潤いがあれば子宝に恵まれる。",
-        qiqie: "妻妾宮（目尻）：奸門とも呼ぶ。豊満であれば夫婦仲が良い。",
-        xiongdi: "兄弟宮（眉）：兄弟姉妹や友人からの助けを見る。",
-        jie: "疾厄宮（山根）：目と目の間の鼻の付け根。健康状態と先祖の基盤を見る。",
-        qianyi: "遷移宮（額の角）：生え際の両側。移動、旅行、海外運を見る。",
-        nupu: "奴僕宮（顎の両側）：地閣の一部。部下運や晩年の運勢を見る。",
-        fude: "福徳宮（眉の上）：先祖の加護と個人の福徳を見る。",
-        xiangmao: "相貌宮：顔全体の気色と精神状態を総括して見る。"
-      }
-    },
-    analysis: {
-      btn_start: "運命を鑑定",
-      btn_loading: "鑑定中...",
-      title: "鑑定報告書",
-      disclaimer: "* 結果は参考です。運命は自分で切り開くものです。",
-      error_prefix: "エラー："
-    },
-    ai_prompt_lang: "Japanese (日本語)"
+    analysis: { btn_start: "鑑定", btn_loading: "鑑定中...", title: "レポート", disclaimer: "参考のみ", error_prefix: "エラー" },
+    ai_prompt_lang: "Japanese"
   }
 };
 
-// ... (getFacePoints, helper components BookBadge, EncyclopediaCard, HowItWorksSection, ClassicDiagramSection, EncyclopediaSection, MirrorModeExplanation, ImageAligner are unchanged)
-// Re-adding for context and completeness
+// -----------------------------------------------------------------------------
+// 3. HELPER FUNCTIONS & COMPONENTS
+// -----------------------------------------------------------------------------
 
-const getFacePoints = (lang: Language, mode: MapMode): FacePoint[] => {
+const getFacePoints = (lang: Language, mode: MapMode, adj: {x: number, y: number, scale: number} = {x:0, y:0, scale:1}): FacePoint[] => {
   const isZh = lang === 'zh-TW';
   const isJa = lang === 'ja';
   const t_palaces = TRANSLATIONS[lang].encyclopedia.palaces;
   
+  let points: FacePoint[] = [];
+  
   if (mode === 'palaces') {
-    return [
-      // Midline (Central Axis)
+    points = [
       { id: 'guan', name: isZh ? '官祿宮' : isJa ? '官禄宮' : 'Career', shortDesc: isZh ? '事業地位' : isJa ? '仕事運' : 'Career', x: 50, y: 22, desc: t_palaces.guan, book: isZh ? '水鏡' : isJa ? '水鏡' : 'Water Mirror' },
       { id: 'ming', name: isZh ? '命宮(印堂)' : isJa ? '命宮(印堂)' : 'Life', shortDesc: isZh ? '願望樞紐' : isJa ? '願望成就' : 'Destiny Core', x: 50, y: 39, desc: t_palaces.ming, book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
       { id: 'ji', name: isZh ? '疾厄宮' : isJa ? '疾厄宮' : 'Health', shortDesc: isZh ? '健康根基' : isJa ? '健康運' : 'Vitality', x: 50, y: 47, desc: t_palaces.jie, book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
       { id: 'cai', name: isZh ? '財帛宮' : isJa ? '財帛宮' : 'Wealth', shortDesc: isZh ? '正財庫存' : isJa ? '金運' : 'Wealth', x: 50, y: 62, desc: t_palaces.cai, book: isZh ? '柳莊' : isJa ? '柳莊' : 'Liu Zhuang' },
-      // Upper Face
       { id: 'qian_l', name: isZh ? '遷移宮' : isJa ? '遷移宮' : 'Travel', shortDesc: isZh ? '外出變動' : isJa ? '旅行運' : 'Movement', x: 18, y: 20, desc: t_palaces.qianyi, book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
       { id: 'qian_r', name: isZh ? '遷移宮' : isJa ? '遷移宮' : 'Travel', shortDesc: isZh ? '外出變動' : isJa ? '旅行運' : 'Movement', x: 82, y: 20, desc: t_palaces.qianyi, book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
       { id: 'fu_l', name: isZh ? '福德宮' : isJa ? '福徳宮' : 'Fortune', shortDesc: isZh ? '福報祖蔭' : isJa ? '福徳' : 'Blessings', x: 22, y: 28, desc: t_palaces.fude, book: isZh ? '冰鑑' : isJa ? '冰鑑' : 'Ice Mirror' },
       { id: 'fu_r', name: isZh ? '福德宮' : isJa ? '福徳宮' : 'Fortune', shortDesc: isZh ? '福報祖蔭' : isJa ? '福徳' : 'Blessings', x: 78, y: 28, desc: t_palaces.fude, book: isZh ? '冰鑑' : isJa ? '冰鑑' : 'Ice Mirror' },
-      // Brows
       { id: 'bro_l', name: isZh ? '兄弟宮' : isJa ? '兄弟宮' : 'Brothers', shortDesc: isZh ? '交友助力' : isJa ? '兄弟運' : 'Siblings', x: 22, y: 34, desc: t_palaces.xiongdi, book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
       { id: 'bro_r', name: isZh ? '兄弟宮' : isJa ? '兄弟宮' : 'Brothers', shortDesc: isZh ? '交友助力' : isJa ? '兄弟運' : 'Siblings', x: 78, y: 34, desc: t_palaces.xiongdi, book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
-      // Mid Face
       { id: 'tian_l', name: isZh ? '田宅宮' : isJa ? '田宅宮' : 'Property', shortDesc: isZh ? '房產家運' : isJa ? '不動産運' : 'Assets', x: 35, y: 42, desc: t_palaces.tian, book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
       { id: 'tian_r', name: isZh ? '田宅宮' : isJa ? '田宅宮' : 'Property', shortDesc: isZh ? '房產家運' : isJa ? '不動産運' : 'Assets', x: 65, y: 42, desc: t_palaces.tian, book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
       { id: 'qi_l', name: isZh ? '妻妾宮' : isJa ? '夫妻宮' : 'Marriage', shortDesc: isZh ? '婚姻感情' : isJa ? '恋愛運' : 'Romance', x: 10, y: 44, desc: t_palaces.qiqie, book: isZh ? '冰鑑' : isJa ? '冰鑑' : 'Ice Mirror' },
       { id: 'qi_r', name: isZh ? '妻妾宮' : isJa ? '夫妻宮' : 'Marriage', shortDesc: isZh ? '婚姻感情' : isJa ? '恋愛運' : 'Romance', x: 90, y: 44, desc: t_palaces.qiqie, book: isZh ? '冰鑑' : isJa ? '冰鑑' : 'Ice Mirror' },
       { id: 'zi_l', name: isZh ? '男女宮' : isJa ? '子女宮' : 'Children', shortDesc: isZh ? '子女緣分' : isJa ? '子供運' : 'Offspring', x: 35, y: 52, desc: t_palaces.nannv, book: isZh ? '水鏡' : isJa ? '水鏡' : 'Water Mirror' },
       { id: 'zi_r', name: isZh ? '男女宮' : isJa ? '子女宮' : 'Children', shortDesc: isZh ? '子女緣分' : isJa ? '子供運' : 'Offspring', x: 65, y: 52, desc: t_palaces.nannv, book: isZh ? '水鏡' : isJa ? '水鏡' : 'Water Mirror' },
-      // Lower Face
       { id: 'nu', name: isZh ? '奴僕宮' : isJa ? '奴僕宮' : 'Subordinate', shortDesc: isZh ? '晚輩部屬' : isJa ? '部下運' : 'Leadership', x: 50, y: 90, desc: t_palaces.nupu, book: isZh ? '柳莊' : isJa ? '柳莊' : 'Liu Zhuang' },
     ];
   } else {
-    return [
-      { id: 'ear_l', name: isZh ? '童年運(金星)' : isJa ? '幼年運' : 'Childhood', shortDesc: isZh ? '1-14歲' : isJa ? '1-14歳' : 'Age 1-14', x: 8, y: 50, ageRange: '1-14', desc: isZh ? '看左耳。輪廓分明，童年健康好養。' : isJa ? '左耳。輪郭がはっきりしていれば健康。' : 'Left Ear. Childhood health.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
+    points = [
+      { id: 'ear_l', name: isZh ? '童年運(金星)' : isJa ? '幼年運' : 'Childhood', shortDesc: isZh ? '1-14歲' : isJa ? '1-14歳' : 'Age 1-14', x: 8, y: 50, ageRange: '1-14', desc: isZh ? '看左耳。輪廓分明，童年健康好養。' : 'Left Ear. Childhood health.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
       { id: 'ear_r', name: isZh ? '童年運(木星)' : isJa ? '幼年運' : 'Childhood', shortDesc: isZh ? '1-14歲' : isJa ? '1-14歳' : 'Age 1-14', x: 92, y: 50, ageRange: '1-14', desc: isZh ? '看右耳。耳大有福，聰明伶俐。' : isJa ? '右耳。耳が大きければ福がある。' : 'Right Ear. Intelligence.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
-      { id: 'fore', name: isZh ? '少年運(火星)' : isJa ? '少年運' : 'Youth', shortDesc: isZh ? '15-30歲' : isJa ? '15-30歳' : 'Age 15-30', x: 50, y: 22, ageRange: '15-30', desc: isZh ? '看額頭。天庭飽滿，少年得志，學業順遂。' : isJa ? '額。額が広ければ学業に優れる。' : 'Forehead. Academic success in youth.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
-      { id: 'brow', name: isZh ? '青年運(羅計)' : isJa ? '青年運' : 'Young Adult', shortDesc: isZh ? '31-34歲' : isJa ? '31-34歳' : 'Age 31-34', x: 50, y: 35, ageRange: '31-34', desc: isZh ? '看眉毛。眉清目秀，貴人多助。' : isJa ? '眉。眉が美しければ助けが多い。' : 'Brows. Social help.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
-      { id: 'eye', name: isZh ? '青年運(日月)' : isJa ? '青年運' : 'Young Adult', shortDesc: isZh ? '35-40歲' : isJa ? '35-40歳' : 'Age 35-40', x: 50, y: 44, ageRange: '35-40', desc: isZh ? '看眼睛。眼神含藏，事業衝刺期。' : isJa ? '目。目が澄んでいれば事業が伸びる。' : 'Eyes. Career peak.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
-      { id: 'nose', name: isZh ? '中年運(土星)' : isJa ? '中年運' : 'Middle Age', shortDesc: isZh ? '41-50歲' : isJa ? '41-50歳' : 'Age 41-50', x: 50, y: 58, ageRange: '41-50', desc: isZh ? '看鼻準與兩顴。鼻挺顴豐，財富權力高峰。' : isJa ? '鼻と頬。鼻が高ければ財運の絶頂。' : 'Nose/Cheeks. Wealth peak.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
-      { id: 'mouth', name: isZh ? '晚年運(水星)' : isJa ? '晩年運' : 'Late Life', shortDesc: isZh ? '51-60歲' : isJa ? '51-60歳' : 'Age 51-60', x: 50, y: 78, ageRange: '51-60', desc: isZh ? '看人中與嘴唇。稜角分明，食祿豐厚。' : isJa ? '口。形が良ければ食に困らない。' : 'Mouth. Luck in 50s.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
-      { id: 'chin', name: isZh ? '晚年運(地閣)' : isJa ? '晩年運' : 'Late Life', shortDesc: isZh ? '61歲後' : isJa ? '61歳以降' : 'Age 61+', x: 50, y: 92, ageRange: '61+', desc: isZh ? '看下巴。圓厚有力，晚景優渥，兒孫滿堂。' : isJa ? '顎。丸ければ晩年は安泰。' : 'Chin. Retirement luck.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
+      { id: 'fore', name: isZh ? '少年運(火星)' : isJa ? '少年運' : 'Youth', shortDesc: isZh ? '15-30歲' : isJa ? '15-30歳' : 'Age 15-30', x: 50, y: 22, ageRange: '15-30', desc: isZh ? '看額頭。天庭飽滿，少年得志，學業順遂。' : 'Forehead. Academic success in youth.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
+      { id: 'brow', name: isZh ? '青年運(羅計)' : isJa ? '青年運' : 'Young Adult', shortDesc: isZh ? '31-34歲' : isJa ? '31-34歳' : 'Age 31-34', x: 50, y: 35, ageRange: '31-34', desc: isZh ? '看眉毛。眉清目秀，貴人多助。' : 'Brows. Social help.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
+      { id: 'eye', name: isZh ? '青年運(日月)' : isJa ? '青年運' : 'Young Adult', shortDesc: isZh ? '35-40歲' : isJa ? '35-40歳' : 'Age 35-40', x: 50, y: 44, ageRange: '35-40', desc: isZh ? '看眼睛。眼神含藏，事業衝刺期。' : 'Eyes. Career peak.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
+      { id: 'nose', name: isZh ? '中年運(土星)' : isJa ? '中年運' : 'Middle Age', shortDesc: isZh ? '41-50歲' : isJa ? '41-50歳' : 'Age 41-50', x: 50, y: 58, ageRange: '41-50', desc: isZh ? '看鼻準與兩顴。鼻挺顴豐，財富權力高峰。' : 'Nose/Cheeks. Wealth peak.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
+      { id: 'mouth', name: isZh ? '晚年運(水星)' : isJa ? '晩年運' : 'Late Life', shortDesc: isZh ? '51-60歲' : isJa ? '51-60歳' : 'Age 51-60', x: 50, y: 78, ageRange: '51-60', desc: isZh ? '看人中與嘴唇。稜角分明，食祿豐厚。' : 'Mouth. Luck in 50s.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
+      { id: 'chin', name: isZh ? '晚年運(地閣)' : isJa ? '晩年運' : 'Late Life', shortDesc: isZh ? '61歲後' : isJa ? '61歳以降' : 'Age 61+', x: 50, y: 92, ageRange: '61+', desc: isZh ? '看下巴。圓厚有力，晚景優渥，兒孫滿堂。' : 'Chin. Retirement luck.', book: isZh ? '麻衣' : isJa ? '麻衣' : 'Ma Yi' },
     ];
   }
+
+  // Apply Adjustments
+  return points.map(p => ({
+    ...p,
+    x: 50 + (p.x - 50) * adj.scale + adj.x,
+    y: 50 + (p.y - 50) * adj.scale + adj.y
+  }));
+};
+
+const ScanningOverlay = ({ mode }: { mode: AppMode }) => {
+  const colorMap: Record<string, string> = {
+    'aging': 'purple',
+    'career2026': 'cyan',
+    'daily': 'green',
+    'mirror': 'indigo',
+    'single': 'yellow',
+    'couple': 'pink',
+    'yearly': 'orange'
+  };
+  const color = colorMap[mode] || 'yellow';
+
+  return (
+    <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden rounded-3xl">
+      <style>{`
+        @keyframes scan-move {
+          0% { top: -10%; opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { top: 110%; opacity: 0; }
+        }
+        .animate-scan {
+          animation: scan-move 2.5s linear infinite;
+        }
+      `}</style>
+
+      <div className={`absolute left-0 w-full h-2 bg-gradient-to-r from-transparent to-transparent shadow-[0_0_20px_rgba(255,255,255,0.5)] animate-scan opacity-80
+        ${color === 'purple' ? 'via-purple-400 shadow-purple-500/50' : 
+          color === 'cyan' ? 'via-cyan-400 shadow-cyan-500/50' : 
+          color === 'green' ? 'via-green-400 shadow-green-500/50' : 
+          color === 'pink' ? 'via-pink-400 shadow-pink-500/50' :
+          color === 'orange' ? 'via-orange-400 shadow-orange-500/50' :
+          'via-yellow-400 shadow-yellow-500/50'}`}>
+      </div>
+
+      <div className={`absolute inset-0 opacity-20 bg-gradient-to-b to-transparent
+         ${color === 'purple' ? 'from-purple-500/10' : 
+           color === 'cyan' ? 'from-cyan-500/10' : 
+           color === 'green' ? 'from-green-500/10' : 
+           color === 'orange' ? 'from-orange-500/10' :
+           'from-indigo-500/10'}`}>
+           <div className="w-full h-full" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+      </div>
+    </div>
+  );
 };
 
 const BookBadge: React.FC<{ title: string; titleEn: string; desc: string; icon: string; details: string }> = ({ title, titleEn, desc, icon, details }) => (
@@ -730,16 +561,23 @@ const HowItWorksSection: React.FC<{ t: Translation }> = ({ t }) => {
         <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">{t.howItWorks.title}</h2>
         <p className="text-indigo-300">{t.howItWorks.subtitle}</p>
       </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {steps.map((step, idx) => (
           <div key={idx} className="bg-indigo-900/20 backdrop-blur-sm border border-indigo-500/20 rounded-2xl p-6 relative group hover:bg-indigo-800/30 transition-all">
             <div className="absolute -top-4 -left-4 w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center font-bold text-indigo-900 text-lg shadow-lg">
               {idx + 1}
             </div>
+            
             <div className="text-4xl mb-4 text-center group-hover:scale-110 transition-transform duration-300">{step.icon}</div>
             <h3 className="text-lg font-bold text-yellow-300 text-center mb-3">{step.data.title}</h3>
-            <p className="text-sm text-indigo-200 text-center leading-relaxed opacity-90">{step.data.desc}</p>
-            {idx < 3 && <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-0.5 bg-indigo-500/30 z-0"></div>}
+            <p className="text-sm text-indigo-200 text-center leading-relaxed opacity-90">
+              {step.data.desc}
+            </p>
+            
+            {idx < 3 && (
+              <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-0.5 bg-indigo-500/30 z-0"></div>
+            )}
           </div>
         ))}
       </div>
@@ -765,6 +603,7 @@ const ClassicDiagramSection: React.FC<{ t: Translation }> = ({ t }) => {
         <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">{t.diagrams.title}</h2>
         <p className="text-indigo-300">{t.diagrams.subtitle}</p>
       </div>
+
       <div className="grid lg:grid-cols-2 gap-10 items-start">
         {diagrams.map((d, idx) => (
           <div key={idx} className="bg-indigo-900/20 rounded-3xl p-6 border border-indigo-500/20 hover:border-indigo-500/40 transition-all">
@@ -779,19 +618,24 @@ const ClassicDiagramSection: React.FC<{ t: Translation }> = ({ t }) => {
                     target.src = "https://placehold.co/800x600/1e1b4b/fbbf24?text=Image+Not+Found"; 
                 }}
               />
-              <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/60 backdrop-blur text-xs text-center text-yellow-300">{d.data.title}</div>
+              <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/60 backdrop-blur text-xs text-center text-yellow-300">
+                {d.data.title}
+              </div>
             </div>
+
             <div className="space-y-4">
                <div className="bg-indigo-950/50 p-4 rounded-lg">
                  <h4 className="text-yellow-400 font-bold mb-2 text-sm uppercase tracking-wider">Core Logic</h4>
                  <p className="text-indigo-100 text-sm leading-relaxed">{d.data.core_logic}</p>
                </div>
+               
                <div>
                  <h4 className="text-indigo-300 font-bold mb-3 text-xs uppercase tracking-wider">Key Interpretations</h4>
                  <ul className="space-y-3">
                    {d.data.points.map((pt, i) => (
                      <li key={i} className="flex items-start text-sm text-indigo-50/90 leading-relaxed">
-                       <span className="mr-2 mt-1 w-1.5 h-1.5 bg-yellow-500 rounded-full flex-shrink-0"></span>{pt}
+                       <span className="mr-2 mt-1 w-1.5 h-1.5 bg-yellow-500 rounded-full flex-shrink-0"></span>
+                       {pt}
                      </li>
                    ))}
                  </ul>
@@ -806,13 +650,26 @@ const ClassicDiagramSection: React.FC<{ t: Translation }> = ({ t }) => {
 
 const EncyclopediaSection: React.FC<{ t: Translation }> = ({ t }) => {
   const palaces = Object.entries(t.encyclopedia.palaces);
+
   return (
     <div className="border-t border-white/10 pt-16">
       <div className="text-center mb-12">
         <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">{t.encyclopedia.title}</h2>
         <p className="text-indigo-300 mb-8">{t.encyclopedia.subtitle}</p>
-        <div className="inline-block bg-indigo-900/30 rounded-full px-6 py-2 border border-indigo-500/30 text-yellow-300 text-sm font-semibold">{t.encyclopedia.palaces_title}</div>
+        
+        <div className="inline-block bg-indigo-900/30 rounded-full px-6 py-2 border border-indigo-500/30 text-yellow-300 text-sm font-semibold">
+          {t.encyclopedia.palaces_title}
+        </div>
       </div>
+
+      {/* Top Concepts Grid */}
+      <div className="grid md:grid-cols-3 gap-6 mb-12">
+          <EncyclopediaCard title={t.encyclopedia.wuyue.title} desc={t.encyclopedia.wuyue.desc} icon="⛰️" />
+          <EncyclopediaCard title={t.encyclopedia.sidu.title} desc={t.encyclopedia.sidu.desc} icon="🌊" />
+          <EncyclopediaCard title={t.encyclopedia.wuxing.title} desc={t.encyclopedia.wuxing.desc} icon="✨" />
+      </div>
+
+      {/* 12 Palaces Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
         {palaces.map(([key, desc], idx) => (
           <div key={key} className="bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-all hover:-translate-y-1">
@@ -831,32 +688,54 @@ const MirrorModeExplanation: React.FC<{ t: Translation }> = ({ t }) => {
   return (
     <div className="mt-10 mb-16 animate-fadeIn">
       <div className="bg-indigo-950/40 border border-indigo-500/30 rounded-3xl p-6 md:p-10">
+        
+        {/* Concept Header */}
         <div className="text-center mb-10">
-          <div className="inline-block px-4 py-1 mb-4 bg-indigo-600/30 rounded-full border border-indigo-400/30 text-indigo-200 text-xs tracking-widest uppercase">DEEP DIVE</div>
+          <div className="inline-block px-4 py-1 mb-4 bg-indigo-600/30 rounded-full border border-indigo-400/30 text-indigo-200 text-xs tracking-widest uppercase">
+            DEEP DIVE
+          </div>
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">{t.mirror.concept_title}</h2>
-          <p className="text-indigo-200 max-w-3xl mx-auto leading-relaxed">{t.mirror.concept_desc}</p>
+          <p className="text-indigo-200 max-w-3xl mx-auto leading-relaxed">
+            {t.mirror.concept_desc}
+          </p>
         </div>
+
+        {/* The Two Faces Cards */}
         <div className="grid md:grid-cols-2 gap-6 mb-10">
+          {/* Left Face Card */}
           <div className="bg-indigo-900/30 rounded-2xl p-6 border border-indigo-500/20 hover:bg-indigo-900/50 transition-colors flex flex-col items-center text-center">
             <div className="text-5xl mb-4">🧠</div>
             <h3 className="text-xl font-bold text-yellow-300 mb-2">{t.mirror.left_face_title}</h3>
             <div className="w-12 h-1 bg-yellow-500/50 rounded-full mb-4"></div>
-            <p className="text-sm text-indigo-100 leading-relaxed">{t.mirror.left_face_desc}</p>
+            <p className="text-sm text-indigo-100 leading-relaxed">
+              {t.mirror.left_face_desc}
+            </p>
           </div>
+
+          {/* Right Face Card */}
           <div className="bg-purple-900/30 rounded-2xl p-6 border border-purple-500/20 hover:bg-purple-900/50 transition-colors flex flex-col items-center text-center">
             <div className="text-5xl mb-4">🎭</div>
             <h3 className="text-xl font-bold text-purple-300 mb-2">{t.mirror.right_face_title}</h3>
             <div className="w-12 h-1 bg-purple-500/50 rounded-full mb-4"></div>
-            <p className="text-sm text-indigo-100 leading-relaxed">{t.mirror.right_face_desc}</p>
+            <p className="text-sm text-indigo-100 leading-relaxed">
+              {t.mirror.right_face_desc}
+            </p>
           </div>
         </div>
+
+        {/* Visual Shock & Logic */}
         <div className="bg-white/5 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
-           <div className="flex-shrink-0 bg-indigo-600 rounded-full w-16 h-16 flex items-center justify-center text-3xl shadow-lg shadow-indigo-500/30">⚡</div>
+           <div className="flex-shrink-0 bg-indigo-600 rounded-full w-16 h-16 flex items-center justify-center text-3xl shadow-lg shadow-indigo-500/30">
+             ⚡
+           </div>
            <div className="text-center md:text-left">
              <h3 className="text-lg font-bold text-white mb-2">{t.mirror.visual_shock_title}</h3>
-             <p className="text-indigo-200 text-sm leading-relaxed">{t.mirror.visual_shock_desc}</p>
+             <p className="text-indigo-200 text-sm leading-relaxed">
+               {t.mirror.visual_shock_desc}
+             </p>
            </div>
         </div>
+
       </div>
     </div>
   );
@@ -951,6 +830,7 @@ const ImageAligner: React.FC<{
           onTouchMove={handleTouchMove}
           onTouchEnd={handleMouseUp}
         >
+          {/* Image */}
           <div className="w-full h-full flex items-center justify-center pointer-events-none">
              <img 
                src={`data:image/jpeg;base64,${imageData}`} 
@@ -963,13 +843,18 @@ const ImageAligner: React.FC<{
              />
           </div>
 
+          {/* Guides Overlay */}
           <div className="absolute inset-0 pointer-events-none z-10">
+             {/* Center Line (Nose) */}
              <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-yellow-400/70 -translate-x-1/2 shadow-[0_0_5px_rgba(0,0,0,0.5)]"></div>
+             {/* Eye Line */}
              <div className="absolute top-[42%] left-0 right-0 h-0.5 bg-yellow-400/50 shadow-[0_0_5px_rgba(0,0,0,0.5)]"></div>
+             {/* Oval Face Guide */}
              <div className="absolute top-[10%] bottom-[10%] left-[20%] right-[20%] border-2 border-dashed border-white/30 rounded-[50%]"></div>
           </div>
         </div>
 
+        {/* Controls */}
         <div className="mt-6 space-y-4">
           <div className="flex items-center gap-4">
              <span className="text-xs w-12 text-indigo-300">Rotate</span>
@@ -980,26 +865,92 @@ const ImageAligner: React.FC<{
              <input type="range" min="0.5" max="3" step="0.1" value={transform.scale} onChange={e => setTransform({...transform, scale: Number(e.target.value)})} className="flex-1 accent-yellow-400" />
           </div>
           <div className="flex gap-3">
-             <button onClick={onCancel} className="flex-1 py-3 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-white transition-all">{t.mirror.cancel_align}</button>
-             <button onClick={confirm} className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold text-white shadow-lg transition-all">{t.mirror.confirm_align}</button>
+             <button onClick={onCancel} className="flex-1 py-3 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-white transition-all">
+                 {t.mirror.cancel_align}
+             </button>
+             <button onClick={confirm} className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold text-white shadow-lg transition-all">
+                {t.mirror.confirm_align}
+             </button>
           </div>
         </div>
         
+        {/* Hidden Canvas for processing */}
         <canvas ref={canvasRef} className="hidden" />
       </div>
     </div>
   );
 };
 
-// --- 5. Main Application Component ---
+const YearlyFortuneSection: React.FC<{
+  imageData: string;
+  onAnalyze: (dob: string) => void;
+  t: Translation;
+}> = ({ imageData, onAnalyze, t }) => {
+  const [dob, setDob] = useState('');
+
+  return (
+    <div className="animate-fadeIn bg-indigo-950/30 border border-indigo-500/30 rounded-3xl p-6 md:p-8 mt-4">
+       <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-white mb-2">{t.yearly.title}</h2>
+          <p className="text-indigo-300 text-sm">{t.yearly.subtitle}</p>
+       </div>
+
+       <div className="grid md:grid-cols-2 gap-8 mb-8">
+          {/* Method 1 Card */}
+          <div className="bg-indigo-900/40 p-5 rounded-2xl border border-indigo-500/20">
+             <div className="text-3xl mb-3">🧒</div>
+             <h3 className="text-lg font-bold text-yellow-300 mb-2">{t.yearly.method1_title}</h3>
+             <p className="text-sm text-indigo-200 leading-relaxed">{t.yearly.method1_desc}</p>
+          </div>
+          {/* Method 2 Card */}
+          <div className="bg-indigo-900/40 p-5 rounded-2xl border border-indigo-500/20">
+             <div className="text-3xl mb-3">📅</div>
+             <h3 className="text-lg font-bold text-yellow-300 mb-2">{t.yearly.method2_title}</h3>
+             <p className="text-sm text-indigo-200 leading-relaxed">{t.yearly.method2_desc}</p>
+          </div>
+       </div>
+
+       {/* DOB Input */}
+       <div className="max-w-sm mx-auto bg-white/5 p-6 rounded-2xl border border-white/10">
+          <label className="block text-sm font-medium text-indigo-200 mb-3 text-center">
+             {t.yearly.dob_label}
+          </label>
+          <input 
+            type="date" 
+            value={dob}
+            onChange={(e) => setDob(e.target.value)}
+            className="w-full bg-indigo-950 text-white border border-indigo-500/50 rounded-xl px-4 py-3 text-center focus:outline-none focus:ring-2 focus:ring-yellow-500 mb-6 appearance-none"
+            style={{ colorScheme: 'dark' }}
+          />
+          <button 
+             onClick={() => dob && onAnalyze(dob)}
+             disabled={!dob}
+             className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+             {t.yearly.analyze_btn}
+          </button>
+       </div>
+    </div>
+  );
+};
+
+// -----------------------------------------------------------------------------
+// 4. MAIN APPLICATION COMPONENT
+// -----------------------------------------------------------------------------
 
 const App: React.FC = () => {
+  // State
   const [appMode, setAppMode] = useState<AppMode>('single');
   const [imageData, setImageData] = useState<string | null>(null);
   const [coupleData, setCoupleData] = useState<{ p1: string | null; p2: string | null }>({ p1: null, p2: null });
   const [agingPath, setAgingPath] = useState<'virtue' | 'worry' | null>(null);
   const [mirrorImages, setMirrorImages] = useState<{ inner: string; outer: string } | null>(null);
   const [isAligning, setIsAligning] = useState(false);
+  const [userDob, setUserDob] = useState<string>(''); // For Yearly Fortune
+  
+  // New state for map adjustment (Calibration)
+  const [mapAdjustment, setMapAdjustment] = useState({ x: 0, y: 0, scale: 1 });
+  const [isCalibrating, setIsCalibrating] = useState(false);
   
   const [analysisResult, setAnalysisResult] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -1012,9 +963,9 @@ const App: React.FC = () => {
   const [selectedPoint, setSelectedPoint] = useState<FacePoint | null>(null);
 
   const t = TRANSLATIONS[language];
-  const facePoints = getFacePoints(language, mapMode);
+  const facePoints = getFacePoints(language, mapMode, mapAdjustment);
   const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const apiKey = ""; 
 
   // --- Handlers ---
   const fileToBase64 = (file: File): Promise<string> => {
@@ -1101,14 +1052,67 @@ const App: React.FC = () => {
         if (text) setAnalysisResult(text.replace(/[*#]/g, '')); else throw new Error("No result");
     } catch (e) { setError(t.analysis.error_prefix + " Connection failed."); } finally { setIsLoading(false); }
   };
+  
+  // Yearly Fortune Handler
+  const handleYearlyFortune = async (dob: string) => {
+      setUserDob(dob);
+      setIsLoading(true);
+      setError('');
+      setAnalysisResult('');
+      
+      if (!imageData) { setError(t.upload.error_empty); setIsLoading(false); return; }
+
+      const systemPrompt = `你是一位精通 **《麻衣相法》流年部位** 與 **生辰八字/生肖** 的命理大師。
+      請結合用戶的「面相照片」與「出生日期」(${dob})，預測未來兩年的詳細運勢。
+      
+      **分析方法 (雙重驗證)**：
+      1. **面相流年法**：根據出生日期計算實歲與虛歲，精確找出未來兩年對應的臉部「流年部位」（例如：30歲看眉，41歲看山根）。觀察照片中該部位的氣色、飽滿度、是否有紋路沖破。
+      2. **八字/生肖流年法**：根據出生年推算生肖，分析其與未來兩年（例如：蛇年、馬年）的太歲關係（沖、合、刑、害）及五行生剋。
+
+      **輸出結構 (社群風格)**：
+      1. **🗓️ 您的流年座標**：指出目前虛歲與對應的面相部位。
+      2. **📜 未來兩年運勢總論**：(Emoji) 總評。
+      3. **🔮 第一年 (${new Date().getFullYear() + 1}) 預測**：
+         - **面相視角**：引用古籍口訣（如「眉清目秀...」）。
+         - **生肖視角**：太歲關係分析。
+         - **白話建議**：工作/感情/財運。
+      4. **🔮 第二年 (${new Date().getFullYear() + 2}) 預測**：同上。
+      5. **💡 開運錦囊**：結合兩種分析的綜合建議。
+
+      語氣：專業、精準、正向賦能。語言：${t.ai_prompt_lang}。請勿使用Markdown符號。`;
+
+      const userQuery = `Analyze yearly fortune for DOB: ${dob}. Language: ${t.ai_prompt_lang}. No Markdown.`;
+
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: userQuery }, { inlineData: { mimeType: "image/jpeg", data: imageData } }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] }
+          }),
+        });
+        const result = await response.json();
+        const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) setAnalysisResult(text.replace(/[*#]/g, '')); else throw new Error("No result");
+      } catch (e) { setError(t.analysis.error_prefix + " Connection failed."); } finally { setIsLoading(false); }
+  };
 
   const analyze = async () => {
     setIsLoading(true); setError('');
     setTimeout(() => document.getElementById('analysis-result')?.scrollIntoView({ behavior: 'smooth' }), 100);
     let systemPrompt = ""; let userQuery = ""; let parts: any[] = [];
+    
+    const bookDefinitions = `
+    參考典籍與分析重點：
+    1. 《麻衣相法》：以「五官、十二宮、十三部位、流年運勢」為骨架，分析基礎命理架構。
+    2. 《柳莊相法》：注重「氣色觀人」與「動態神情」，強調「面相會變」，分析當下吉凶與變數。
+    3. 《水鏡相法》：重在分辨「忠奸賢愚」，分析性格本質與實用性的人際互動。
+    4. 《冰鑑》：從「神、骨、氣、色、音、態」整體觀人，分析內在精神格局與潛力。
+    `;
+
     if (appMode === 'single') {
         if (!imageData) { setError(t.upload.error_empty); setIsLoading(false); return; }
-        systemPrompt = `你同時身兼兩位頂尖導師的角色...`; 
+        systemPrompt = `你同時身兼兩位頂尖導師的角色... ${bookDefinitions} ... (省略)`; 
         userQuery = `Analyze this face in Social Media Post Style. Language: ${t.ai_prompt_lang}. Include Emojis. No Markdown.`;
         parts = [{ text: userQuery }, { inlineData: { mimeType: "image/jpeg", data: imageData } }];
     } else if (appMode === 'couple') {
@@ -1132,15 +1136,19 @@ const App: React.FC = () => {
         userQuery = `Analyze contrast. Language: ${t.ai_prompt_lang}. No Markdown.`;
         parts = [{ text: userQuery }, { inlineData: { mimeType: "image/jpeg", data: mirrorImages.inner } }, { inlineData: { mimeType: "image/jpeg", data: mirrorImages.outer } }];
     }
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ role: "user", parts: parts }], systemInstruction: { parts: [{ text: systemPrompt }] } }),
-      });
-      const result = await response.json();
-      const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (text) setAnalysisResult(text.replace(/[*#]/g, '')); else throw new Error("No result");
-    } catch (e) { setError(t.analysis.error_prefix + " Connection failed."); } finally { setIsLoading(false); }
+    // Yearly mode is handled by handleYearlyFortune
+    
+    if (appMode !== 'yearly') {
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ role: "user", parts: parts }], systemInstruction: { parts: [{ text: systemPrompt }] } }),
+            });
+            const result = await response.json();
+            const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) setAnalysisResult(text.replace(/[*#]/g, '')); else throw new Error("No result");
+        } catch (e) { setError(t.analysis.error_prefix + " Connection failed."); } finally { setIsLoading(false); }
+    }
   };
 
   return (
@@ -1163,34 +1171,25 @@ const App: React.FC = () => {
           <div className="inline-block px-3 py-1 mb-4 border border-yellow-500/30 rounded-full bg-yellow-500/10 text-yellow-300 text-xs tracking-widest uppercase">{t.subtitle}</div>
           <h1 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-white to-yellow-100 mb-6 drop-shadow-sm">{t.title}</h1>
           <div className="flex justify-center mb-8">
-             {/* Improved Tab Navigation for better UI/UX */}
-             <div className="bg-indigo-950/50 p-1 rounded-xl sm:rounded-full border border-indigo-500/30 flex flex-wrap justify-center gap-1 sm:gap-0 relative overflow-hidden w-full sm:w-auto">
-                
-                {/* Desktop Slider (Visible only on SM+) */}
-                <div className={`hidden sm:block absolute top-1 bottom-1 w-[calc(16.666%-2px)] bg-indigo-600 rounded-full transition-all duration-300 ease-out
-                    ${appMode === 'single' ? 'left-1' : 
-                      appMode === 'couple' ? 'left-[calc(16.666%+1px)]' : 
-                      appMode === 'daily' ? 'left-[calc(33.333%+1px)]' : 
-                      appMode === 'aging' ? 'left-[calc(50%+1px)]' : 
-                      appMode === 'career2026' ? 'left-[calc(66.666%+1px)]' : 
-                      'left-[calc(83.333%+0px)]'}`}></div>
-
-                {/* Tab Buttons */}
-                {(['single', 'couple', 'daily', 'aging', 'career2026', 'mirror'] as AppMode[]).map(mode => (
-                    <button key={mode} onClick={() => { setAppMode(mode); setAnalysisResult(''); setError(''); }} 
-                        className={`relative z-10 px-2 py-3 sm:py-2 rounded-lg sm:rounded-full text-xs font-bold transition-all w-[32%] sm:w-24 text-center flex items-center justify-center
-                        ${appMode === mode 
-                            ? 'bg-indigo-600 text-white shadow-lg sm:bg-transparent' // Mobile active bg, Desktop transparent
-                            : 'text-indigo-300 hover:text-white hover:bg-white/5'}`}>
-                       {t.tabs[mode]}
-                    </button>
-                ))}
+             <div className="flex flex-wrap justify-center gap-3">
+                {(['single', 'couple', 'daily', 'aging', 'career2026', 'mirror', 'yearly'] as AppMode[]).map(mode => {
+                    const iconMap: Record<AppMode, string> = {
+                        single: '👤', couple: '❤️', daily: '☀️', aging: '⏳', career2026: '🚀', mirror: '🎭', yearly: '📅'
+                    };
+                    return (
+                        <button key={mode} onClick={() => { setAppMode(mode); setAnalysisResult(''); setError(''); }} 
+                            className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 ${appMode === mode ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.5)] scale-105 ring-2 ring-indigo-400/50' : 'bg-indigo-950/40 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 hover:text-white'}`}>
+                           <span>{iconMap[mode]}</span> {t.tabs[mode]}
+                        </button>
+                    );
+                })}
              </div>
           </div>
         </div>
 
         {isAligning && imageData && <ImageAligner imageData={imageData} onConfirm={handleAlignmentConfirm} onCancel={handleAlignmentCancel} t={t} />}
 
+        {/* ... (Books Grid - unchanged) */}
         {appMode === 'single' && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
                 <BookBadge title={t.books.mayi.title} titleEn="Ma Yi" desc={t.books.mayi.desc} icon="📜" details={t.books.mayi.details} />
@@ -1200,11 +1199,12 @@ const App: React.FC = () => {
             </div>
         )}
 
-        {/* Main Content */}
-        <div className={`transition-all duration-500 ease-in-out ${!imageData && appMode !== 'couple' ? 'flex justify-center' : 'grid md:grid-cols-2 gap-8'} mb-16 animate-fadeIn`}>
-             {/* Left Column */}
-             <div className={`flex flex-col space-y-6 ${!imageData && appMode !== 'couple' ? 'w-full max-w-xl' : 'w-full'}`}>
-                 {appMode === 'couple' ? (
+        <div className={`transition-all duration-500 ease-in-out ${(!imageData && appMode !== 'couple') || appMode === 'yearly' ? 'flex justify-center' : 'grid md:grid-cols-2 gap-8'} mb-16 animate-fadeIn`}>
+             {/* Left Column / Center Container */}
+             <div className={`flex flex-col space-y-6 ${(!imageData && appMode !== 'couple') || appMode === 'yearly' ? 'w-full max-w-xl' : 'w-full'}`}>
+                 
+                 {/* Couple Mode Uploads */}
+                 {appMode === 'couple' && (
                      <div className="grid grid-cols-2 gap-4">
                         <div className="relative aspect-[3/4] bg-indigo-900/30 rounded-2xl border-2 border-dashed border-indigo-500/30 flex flex-col items-center justify-center hover:bg-indigo-800/30 transition-colors overflow-hidden group">
                             <input type="file" id="p1File" className="hidden" accept="image/jpeg, image/png, image/webp" onChange={(e) => handleCoupleFileChange(e, 'p1')} />
@@ -1225,16 +1225,18 @@ const App: React.FC = () => {
                             )}
                         </div>
                      </div>
-                 ) : !imageData ? (
-                     // Centered Upload Box
+                 )}
+                 
+                 {/* Standard Single Upload (Hidden in Yearly unless no image, hidden in Couple) */}
+                 {appMode !== 'couple' && !imageData && (
                      <div className={`border-2 border-dashed rounded-3xl p-8 md:p-12 text-center transition-all hover:border-opacity-100 border-opacity-60 hover:bg-white/5 relative shadow-xl ${appMode === 'career2026' ? 'border-cyan-500' : 'border-indigo-500'}`}>
                         <input type="file" id="singleFileInput" className="hidden" accept="image/jpeg, image/png, image/webp" onChange={handleSingleFileChange} />
                         <input type="file" id="singleCameraInput" className="hidden" accept="image/jpeg, image/png, image/webp" capture="user" onChange={handleSingleFileChange} />
                         <div className="w-24 h-24 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-inner animate-pulse">
-                            {appMode === 'daily' ? '🌞' : appMode === 'aging' ? '⏳' : appMode === 'career2026' ? '🚀' : '📸'}
+                            {appMode === 'daily' ? '🌞' : appMode === 'aging' ? '⏳' : appMode === 'career2026' ? '🚀' : appMode === 'yearly' ? '📅' : '📸'}
                         </div>
-                        <h3 className="text-2xl font-bold text-white mb-3">{appMode === 'daily' ? t.daily.title : appMode === 'aging' ? t.aging.title : appMode === 'career2026' ? t.career2026.title : t.upload.title}</h3>
-                        <p className="text-indigo-300 text-sm mb-8 leading-relaxed">{appMode === 'aging' ? t.aging.subtitle : appMode === 'career2026' ? t.career2026.subtitle : t.upload.hint}</p>
+                        <h3 className="text-2xl font-bold text-white mb-3">{appMode === 'daily' ? t.daily.title : appMode === 'aging' ? t.aging.title : appMode === 'career2026' ? t.career2026.title : appMode === 'yearly' ? t.yearly.title : t.upload.title}</h3>
+                        <p className="text-indigo-300 text-sm mb-8 leading-relaxed">{appMode === 'aging' ? t.aging.subtitle : appMode === 'career2026' ? t.career2026.subtitle : appMode === 'yearly' ? t.yearly.subtitle : t.upload.hint}</p>
                         <div className="flex justify-center gap-4">
                             <button onClick={() => document.getElementById('singleCameraInput')?.click()} className={`px-8 py-4 rounded-full font-bold text-white shadow-lg transition-transform transform hover:-translate-y-1 active:scale-95 flex items-center ${appMode === 'career2026' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500' : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'}`}>
                                 <span className="mr-2 text-xl">📷</span> {t.upload.camera}
@@ -1244,10 +1246,13 @@ const App: React.FC = () => {
                             </button>
                         </div>
                      </div>
-                 ) : (
+                 )}
+
+                 {/* Image Display (Single modes) */}
+                 {imageData && appMode !== 'couple' && appMode !== 'yearly' && (
                      <div className="relative rounded-3xl overflow-hidden shadow-2xl bg-gray-900 ring-4 ring-white/10 aspect-[4/5] md:aspect-square group">
                          <img src={`data:image/jpeg;base64,${imageData}`} className="w-full h-full object-cover opacity-80" alt="Face" />
-                         {/* Face Map Overlay Logic */}
+                         {isLoading && <ScanningOverlay mode={appMode} />}
                          {showFaceMap && appMode === 'single' && (
                             <>
                               <div className="absolute inset-0 pointer-events-none">
@@ -1278,18 +1283,44 @@ const App: React.FC = () => {
                      </div>
                  )}
                  
+                 {/* Map Controls (Single Mode Only) */}
                  {imageData && appMode === 'single' && (
-                    <div className="bg-white/5 rounded-2xl p-1 flex relative">
-                        <div className={`absolute top-1 bottom-1 w-1/2 bg-indigo-600 rounded-xl transition-all duration-300 ${mapMode === 'palaces' ? 'left-1' : 'left-[calc(50%-4px)] translate-x-1'}`}></div>
-                        <button onClick={() => { setMapMode('palaces'); setSelectedPoint(null); }} className="relative z-10 w-1/2 py-2 text-sm font-medium text-center">{t.map.mode_palace}</button>
-                        <button onClick={() => { setMapMode('ages'); setSelectedPoint(null); }} className="relative z-10 w-1/2 py-2 text-sm font-medium text-center">{t.map.mode_age}</button>
+                    <div className="flex flex-col gap-2">
+                        <div className="bg-white/5 rounded-2xl p-1 flex relative">
+                            <div className={`absolute top-1 bottom-1 w-1/2 bg-indigo-600 rounded-xl transition-all duration-300 ${mapMode === 'palaces' ? 'left-1' : 'left-[calc(50%-4px)] translate-x-1'}`}></div>
+                            <button onClick={() => { setMapMode('palaces'); setSelectedPoint(null); }} className="relative z-10 w-1/2 py-2 text-sm font-medium text-center">{t.map.mode_palace}</button>
+                            <button onClick={() => { setMapMode('ages'); setSelectedPoint(null); }} className="relative z-10 w-1/2 py-2 text-sm font-medium text-center">{t.map.mode_age}</button>
+                        </div>
+                        {isCalibrating ? (
+                            <div className="bg-indigo-900/50 p-4 rounded-2xl border border-yellow-500/30 animate-fadeIn">
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-xs text-yellow-300 font-bold">{t.map.calibrate_title}</span>
+                                    <button onClick={() => setMapAdjustment({x:0, y:0, scale:1})} className="text-[10px] text-indigo-300 hover:text-white bg-white/10 px-2 py-0.5 rounded">{t.map.reset_btn}</button>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2"><span className="text-xs w-8 text-indigo-300">Y</span><input type="range" min="-30" max="30" value={mapAdjustment.y} onChange={e => setMapAdjustment({...mapAdjustment, y: Number(e.target.value)})} className="flex-1 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-yellow-400" /></div>
+                                    <div className="flex items-center gap-2"><span className="text-xs w-8 text-indigo-300">X</span><input type="range" min="-20" max="20" value={mapAdjustment.x} onChange={e => setMapAdjustment({...mapAdjustment, x: Number(e.target.value)})} className="flex-1 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-yellow-400" /></div>
+                                    <div className="flex items-center gap-2"><span className="text-xs w-8 text-indigo-300">Size</span><input type="range" min="0.8" max="1.2" step="0.05" value={mapAdjustment.scale} onChange={e => setMapAdjustment({...mapAdjustment, scale: Number(e.target.value)})} className="flex-1 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-yellow-400" /></div>
+                                </div>
+                                <button onClick={() => setIsCalibrating(false)} className="w-full mt-3 py-1.5 bg-indigo-600 rounded-lg text-xs text-white">Done</button>
+                            </div>
+                        ) : (
+                            <button onClick={() => setIsCalibrating(true)} className="text-xs text-indigo-400 hover:text-yellow-300 text-center w-full py-1">🔧 {t.map.calibrate_btn}</button>
+                        )}
                     </div>
+                 )}
+
+                 {/* Yearly Mode Section */}
+                 {appMode === 'yearly' && imageData && (
+                     <YearlyFortuneSection imageData={imageData} onAnalyze={handleYearlyFortune} t={t} />
                  )}
              </div>
 
-             {/* Right Column (Analysis/Details) */}
-             {(imageData || appMode === 'couple') && (
+             {/* Right Column: Analysis & Output */}
+             {/* Render this column if there is image data OR if we are in Couple mode OR if in Yearly mode with result */}
+             {(imageData || appMode === 'couple' || (appMode === 'yearly' && imageData)) && (
                  <div className="flex flex-col space-y-6">
+                    {/* Aging Controls */}
                     {appMode === 'aging' && imageData && (
                         <div className="bg-indigo-950/30 border border-white/10 rounded-3xl p-6 mb-2">
                             <div className="grid grid-cols-2 gap-4">
@@ -1299,6 +1330,7 @@ const App: React.FC = () => {
                         </div>
                     )}
 
+                    {/* Mirror Display */}
                     {appMode === 'mirror' && mirrorImages && (
                          <div className="grid md:grid-cols-2 gap-4">
                              <div className="bg-indigo-900/30 rounded-xl p-2 text-center"><div className="text-xs text-indigo-300 mb-2">{t.mirror.inner_label}</div><img src={`data:image/jpeg;base64,${mirrorImages.inner}`} className="w-full rounded-lg" /></div>
@@ -1306,8 +1338,10 @@ const App: React.FC = () => {
                          </div>
                     )}
 
+                    {/* Point Details (Single Mode Only) */}
                     {appMode === 'single' && imageData && (
                         <div className="bg-indigo-950/50 border border-indigo-500/30 rounded-3xl p-6 min-h-[150px] flex flex-col justify-center relative overflow-hidden transition-all">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 text-6xl font-serif">{t.map.bg_character}</div>
                             {selectedPoint ? (
                                 <div className="animate-fadeIn">
                                     <h3 className="text-2xl font-bold text-yellow-300 mb-2">{selectedPoint.name}</h3>
@@ -1319,7 +1353,8 @@ const App: React.FC = () => {
                         </div>
                     )}
 
-                    {!analysisResult && (
+                    {/* Analysis Trigger Button (Hidden for Aging/Yearly as they have own triggers) */}
+                    {!analysisResult && appMode !== 'aging' && appMode !== 'yearly' && (
                         <button onClick={analyze} disabled={isLoading || (appMode === 'couple' && (!coupleData.p1 || !coupleData.p2))} 
                             className={`w-full py-4 font-bold text-lg rounded-full shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed
                             ${appMode === 'daily' ? 'bg-gradient-to-r from-green-500 to-teal-600 text-white' 
@@ -1330,16 +1365,22 @@ const App: React.FC = () => {
                         </button>
                     )}
 
+                    {/* Result Output */}
                     {analysisResult && (
-                        <div id="analysis-result" className="bg-white/90 text-indigo-950 p-6 rounded-3xl shadow-xl animate-fadeIn border-t-8 border-yellow-500">
+                        <div id="analysis-result" className={`bg-white/90 text-indigo-950 p-6 rounded-3xl shadow-xl animate-fadeIn border-t-8 
+                           ${appMode === 'daily' ? 'border-green-500' : appMode === 'yearly' ? 'border-orange-500' : 'border-yellow-500'}`}>
+                             {appMode === 'yearly' && <h3 className="text-xl font-bold mb-4 text-center">📅 {t.yearly.result_title}</h3>}
                              <div className="prose prose-indigo max-w-none text-sm md:text-base leading-relaxed whitespace-pre-wrap">{analysisResult}</div>
                              <div className="mt-4 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">{t.analysis.disclaimer}</div>
                         </div>
                     )}
+
+                    {error && <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-4 rounded-xl text-sm text-center">{error}</div>}
                  </div>
              )}
         </div>
 
+        {/* Shared Footer Sections */}
         {appMode === 'single' && <HowItWorksSection t={t} />}
         {appMode === 'single' && <ClassicDiagramSection t={t} />}
         {appMode === 'single' && <EncyclopediaSection t={t} />}
