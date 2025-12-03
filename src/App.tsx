@@ -1,5 +1,14 @@
 import React, { useState, useCallback, ChangeEvent, DragEvent, useRef, useEffect } from 'react';
-
+// 補上這個常數定義，解決 Vercel 找不到 FacePoint 的問題
+const FacePoint = {
+  LeftEye: 159,
+  RightEye: 386,
+  NoseTip: 4,
+  MouthCenter: 13,
+  Chin: 152,
+  LeftEyebrow: 46,
+  RightEyebrow: 276
+};
 // -----------------------------------------------------------------------------
 // 1. TYPE DEFINITIONS & INTERFACES
 // -----------------------------------------------------------------------------
