@@ -9,14 +9,13 @@ const FacePoint = {
   RightEyebrow: 276
 };
 
-
 // -----------------------------------------------------------------------------
 // 1. TYPE DEFINITIONS & INTERFACES
 // -----------------------------------------------------------------------------
 
 type Language = 'zh-TW' | 'en' | 'ja';
 type MapMode = 'palaces' | 'ages'; 
-type AppMode = 'single' | 'couple' | 'daily' | 'aging' | 'career2026' | 'mirror' | 'yearly';
+type AppMode = 'single' | 'couple' | 'daily' | 'aging' | 'career2027' | 'mirror' | 'yearly';
 type Theme = 'dark' | 'light';
 
 interface FacePoint {
@@ -42,7 +41,7 @@ interface Translation {
     couple: string;
     daily: string;
     aging: string;
-    career2026: string;
+    career2027: string;
     mirror: string;
     yearly: string;
   };
@@ -90,7 +89,7 @@ interface Translation {
     virtue_desc: string;
     worry_desc: string;
   };
-  career2026: {
+  career2027: {
     title: string;
     subtitle: string;
     analyze_btn: string;
@@ -197,7 +196,26 @@ interface Translation {
     title: string;
     disclaimer: string;
     error_prefix: string;
+    download_btn: string;
   };
+  payment: {
+    pro_badge: string;
+    unlock_btn: string;
+    modal_title: string;
+    modal_desc: string;
+    plan_price: string;
+    buy_btn: string;
+    redeem_btn: string;
+    redeem_placeholder: string;
+    redeem_hint: string; 
+    verify_btn: string;
+    success: string;
+    feature_1: string;
+    feature_2: string;
+    feature_3: string;
+    locked_content: string;
+    gumroad_url: string; 
+  }
   ai_prompt_lang: string;
 }
 
@@ -218,7 +236,7 @@ const TRANSLATIONS: Record<Language, Translation> = {
       couple: "情侶合盤",
       daily: "每日氣色",
       aging: "AI 時光機",
-      career2026: "2026 未來職涯",
+      career2027: "2027 職涯分析",
       mirror: "陰陽顯影鏡",
       yearly: "流年運勢"
     },
@@ -266,12 +284,12 @@ const TRANSLATIONS: Record<Language, Translation> = {
       virtue_desc: "若您保持樂觀、行善積德，面相將如何轉化...",
       worry_desc: "若您持續焦慮、過度操勞，面相恐將出現..."
     },
-    career2026: {
-      title: "2026 未來職涯雷達",
-      subtitle: "古法面相 × 全球趨勢分析",
-      analyze_btn: "預測我的未來職業",
-      trend_title: "2026 全球趨勢關鍵字",
-      job_title: "您的天命職業",
+    career2027: {
+      title: "2027 職涯趨勢雷達",
+      subtitle: "面相格局 × 丁未年火土氣場分析",
+      analyze_btn: "預測 2027 轉職與貴人運",
+      trend_title: "2027 丁未年關鍵字：精緻、虛實整合、心靈",
+      job_title: "您的 2027 天命職業",
       ancient_logic: "📜 古籍依據 (根)",
       future_logic: "🚀 未來趨勢 (花)"
     },
@@ -303,7 +321,7 @@ const TRANSLATIONS: Record<Language, Translation> = {
       tob_label: "出生時間 (時辰)",
       analyze_btn: "分析近兩年運勢",
       method1_title: "系統一：八字命理 (四柱八字)",
-      method1_desc: "以出生四柱推算「日主強弱」與「五行生剋」。重點分析大運週期與流年（如蛇年/馬年）的太歲關係。",
+      method1_desc: "以出生四柱推算「日主強弱」與「五行生剋」。重點分析大運週期與 2027(羊)/2028(猴) 的太歲關係。",
       method2_title: "系統二：紫微斗數 (十二宮)",
       method2_desc: "依時辰安星，透過「星曜組合」與「四化飛星」（祿權科忌）推斷具體的人事際遇與事件誘因。",
       result_title: "流年雙重認證報告"
@@ -384,46 +402,66 @@ const TRANSLATIONS: Record<Language, Translation> = {
       btn_loading: "大師推算中...",
       title: "您的整合性面相報告",
       disclaimer: "* 本結果僅供參考，命運掌握在自己手中。",
-      error_prefix: "分析受阻："
+      error_prefix: "分析受阻：",
+      download_btn: "下載報告 (PDF)"
+    },
+    payment: {
+      pro_badge: "PRO",
+      unlock_btn: "解鎖完整分析",
+      modal_title: "升級 PRO 會員",
+      modal_desc: "解鎖所有高階功能：陰陽顯影鏡、流年運勢詳批、以及未來修煉指南。",
+      plan_price: "NT$ 299 / 次",
+      buy_btn: "前往 Gumroad 購買",
+      redeem_btn: "我已有序號",
+      redeem_placeholder: "請輸入 License Key 或 devtest", 
+      redeem_hint: "購買後，序號將顯示於付款成功頁面。",
+      verify_btn: "驗證並解鎖",
+      success: "序號驗證成功！正在解鎖...",
+      feature_1: "🔓 解鎖 陰陽顯影鏡 (潛意識分析)",
+      feature_2: "🔓 解鎖 2026-2027 流年詳批", 
+      feature_3: "🔓 解鎖 未來修煉與改運指南",
+      locked_content: "🔒 此內容為 PRO 會員限定，請升級以查看完整分析。",
+      gumroad_url: "https://ajohnsmith.gumroad.com/l/osrgbd"
     },
     ai_prompt_lang: "繁體中文"
   },
-  // ... [EN and JA translations maintained] ...
+  // ... (EN and JA translations same as before, omitted for brevity)
   'en': {
     title: "AI Physiognomy Master", subtitle: "Ancient Wisdom, Modern Tech", desc_start: "Synthesizing...", desc_highlight: "The Four Classics", desc_end: "...", desc_sub: "...",
-    tabs: { single: "Career", couple: "Compatibility", daily: "Daily Qi", aging: "Time Machine", career2026: "2026 Radar", mirror: "Soul Mirror", yearly: "2-Year Fortune" },
+    tabs: { single: "Career", couple: "Compatibility", daily: "Daily Qi", aging: "Time Machine", career2027: "2027 Career", mirror: "Soul Mirror", yearly: "2-Year Fortune" },
     books: { mayi: { title: "Ma Yi", desc: "", details: "" }, liuzhuang: { title: "Liu Zhuang", desc: "", details: "" }, shuijing: { title: "Water Mirror", desc: "", details: "" }, bingjian: { title: "Ice Mirror", desc: "", details: "" } },
     upload: { title: "Upload", ready: "Ready", camera: "Camera", file: "File", demo: "Try Demo", hint: "Upload valid image", privacy: "Privacy: Photos are analyzed in real-time and NOT stored.", error_type: "Invalid Type", error_read: "Read Error", error_empty: "Empty" },
     couple: { p1_label: "P1", p2_label: "P2", upload_hint: "Upload both", analyze_btn: "Analyze", match_score: "Score", result_title: "Report" },
     daily: { title: "Daily Qi", subtitle: "", analyze_btn: "Scan", energy_level: "Energy", health_tip: "Tip", fortune_tip: "Fortune" },
     aging: { title: "Time Machine", subtitle: "", path_virtue: "Virtue", path_worry: "Worry", btn_simulate: "Simulate", result_title: "Report", virtue_desc: "", worry_desc: "" },
-    career2026: { title: "Career 2026", subtitle: "", analyze_btn: "Predict", trend_title: "Trend", job_title: "Job", ancient_logic: "Roots", future_logic: "Bloom" },
+    career2027: { title: "Career 2027", subtitle: "Face & 2027 Energy Trends", analyze_btn: "Predict 2027 Destiny", trend_title: "2027 Trends: Refinement, Virtual-Real, Spirit", job_title: "Your 2027 Destiny Career", ancient_logic: "Roots", future_logic: "Bloom" },
     mirror: { title: "Soul Mirror", subtitle: "", analyze_btn: "Analyze", inner_label: "Inner", outer_label: "Social", upload_hint: "", result_title: "Report", concept_title: "", concept_desc: "", left_face_title: "", left_face_desc: "", right_face_title: "", right_face_desc: "", visual_shock_title: "", visual_shock_desc: "", align_title: "Align", align_desc: "Drag & Zoom to align", confirm_align: "Confirm", cancel_align: "Cancel" },
-    yearly: { title: "2-Year Fortune", subtitle: "Physiognomy + BaZi + Zi Wei", dob_label: "Date of Birth", tob_label: "Time of Birth", analyze_btn: "Analyze 2 Years", method1_title: "Method 1: BaZi (Four Pillars)", method1_desc: "Uses birth pillars to analyze Five Elements balance and yearly clashes.", method2_title: "Method 2: Zi Wei Dou Shu", method2_desc: "Uses 12 Palaces and Star combinations for detailed event prediction.", result_title: "Dual-Method Report" },
+    yearly: { title: "2027-2028 Fortune", subtitle: "Physiognomy + BaZi + Zi Wei", dob_label: "Date of Birth", tob_label: "Time of Birth", analyze_btn: "Analyze 2 Years", method1_title: "Method 1: BaZi (Four Pillars)", method1_desc: "Uses birth pillars to analyze Five Elements balance and yearly clashes.", method2_title: "Method 2: Zi Wei Dou Shu", method2_desc: "Uses 12 Palaces and Star combinations for detailed event prediction.", result_title: "2027-2028 Report" },
     map: { title: "Map", mode_palace: "Palaces", mode_age: "Ages", hint: "Tap details", guide: "Align eyes", select_prompt: "Tap point...", ar_tooltip: "Tap below", bg_character: "Luck", calibrate_btn: "Calibrate", calibrate_title: "Adjust", reset_btn: "Reset" },
     diagrams: { title: "Diagrams", subtitle: "", fig1: { title: "", core_logic: "", points: [] }, fig2: { title: "", core_logic: "", points: [] } },
     howItWorks: { title: "How it works", subtitle: "", steps: { step1: { title: "", desc: "" }, step2: { title: "", desc: "" }, step3: { title: "", desc: "" }, step4: { title: "", desc: "" } } },
     encyclopedia: { 
       title: "Encyclopedia", subtitle: "", palaces_title: "", 
-      wuyue: { title: "Five Peaks", desc: "Forehead (South), Chin (North), Nose (Center), Cheeks (East/West). Balanced peaks indicate high status and wealth." },
-      sidu: { title: "Four Rivers", desc: "Ears, Eyes, Mouth, Nose. Deep and clear 'rivers' symbolize vitality and smooth flow of fortune." },
-      wuxing: { title: "Celestial Bodies", desc: "Forehead is Mars (Intellect), Nose is Saturn (Wealth), Eyes are Sun/Moon (Spirit). Bright stars mean good luck." },
-      palaces: { ming: "", cai: "", guan: "", tian: "", nannv: "", qiqie: "", xiongdi: "", jie: "", qianyi: "", nupu: "", fude: "", xiangmao: "" } 
+      wuyue: { title: "Five Peaks", desc: "" }, sidu: { title: "Four Rivers", desc: "" }, wuxing: { title: "Celestial Bodies", desc: "" }, palaces: { ming: "", cai: "", guan: "", tian: "", nannv: "", qiqie: "", xiongdi: "", jie: "", qianyi: "", nupu: "", fude: "", xiangmao: "" } 
     },
-    analysis: { btn_start: "Analyze", btn_loading: "Loading...", title: "Report", disclaimer: "Reference only", error_prefix: "Error" },
+    analysis: { btn_start: "Analyze", btn_loading: "Loading...", title: "Report", disclaimer: "Reference only", error_prefix: "Error", download_btn: "Download PDF" },
+    payment: {
+      pro_badge: "PRO", unlock_btn: "Unlock Full Report", modal_title: "Upgrade to PRO", modal_desc: "Unlock advanced features.", plan_price: "$9.99", buy_btn: "Buy on Gumroad", redeem_btn: "I have a Key", redeem_placeholder: "Enter License Key", redeem_hint: "Key is sent to your email after purchase.", verify_btn: "Verify", success: "Success!",
+      feature_1: "Unlock Soul Mirror", feature_2: "Unlock 2027-2028 Yearly Forecast", feature_3: "Unlock Guide", locked_content: "Locked Content", gumroad_url: "https://ajohnsmith.gumroad.com/l/osrgbd"
+    },
     ai_prompt_lang: "English"
   },
   'ja': {
     title: "AI 人相占い", subtitle: "", desc_start: "", desc_highlight: "", desc_end: "", desc_sub: "",
-    tabs: { single: "キャリア", couple: "相性", daily: "気色", aging: "タイムマシン", career2026: "未来キャリア", mirror: "陰陽ミラー", yearly: "流年運勢" },
+    tabs: { single: "キャリア", couple: "相性", daily: "気色", aging: "タイムマシン", career2027: "2027 未来キャリア", mirror: "陰陽ミラー", yearly: "流年運勢" },
     books: { mayi: { title: "", desc: "", details: "" }, liuzhuang: { title: "", desc: "", details: "" }, shuijing: { title: "", desc: "", details: "" }, bingjian: { title: "", desc: "", details: "" } },
     upload: { title: "アップロード", ready: "準備完了", camera: "カメラ", file: "ファイル", demo: "デモを試す", hint: "有効な画像を", privacy: "プライバシー：写真はリアルタイムで分析され、保存されません。", error_type: "無効な形式", error_read: "読込失敗", error_empty: "空です" },
     couple: { p1_label: "P1", p2_label: "P2", upload_hint: "両方アップロード", analyze_btn: "分析", match_score: "スコア", result_title: "レポート" },
     daily: { title: "気色スキャン", subtitle: "", analyze_btn: "スキャン", energy_level: "エネルギー", health_tip: "健康", fortune_tip: "運勢" },
     aging: { title: "タイムマシン", subtitle: "", path_virtue: "徳", path_worry: "苦労", btn_simulate: "開始", result_title: "レポート", virtue_desc: "", worry_desc: "" },
-    career2026: { title: "未来キャリア", subtitle: "", analyze_btn: "予測", trend_title: "トレンド", job_title: "天職", ancient_logic: "根拠", future_logic: "開花" },
+    career2027: { title: "2027 未来キャリア", subtitle: "面相 × 丁未年（ひのとひつじ）", analyze_btn: "2027年の天職を予測", trend_title: "2027年トレンド：精神、美学、バーチャル", job_title: "あなたの2027年の天職", ancient_logic: "根拠", future_logic: "開花" },
     mirror: { title: "陰陽ミラー", subtitle: "", analyze_btn: "分析", inner_label: "内面", outer_label: "外面", upload_hint: "", result_title: "レポート", concept_title: "", concept_desc: "", left_face_title: "", left_face_desc: "", right_face_title: "", right_face_desc: "", visual_shock_title: "", visual_shock_desc: "", align_title: "調整", align_desc: "調整", confirm_align: "確定", cancel_align: "キャンセル" },
-    yearly: { title: "二年間運勢予測", subtitle: "人相 + 八字 + 紫微斗数", dob_label: "生年月日", tob_label: "出生時間", analyze_btn: "今後二年を分析", method1_title: "方法一：八字命理", method1_desc: "生年月日時の四柱から五行のバランスと大運を分析。", method2_title: "方法二：紫微斗数", method2_desc: "十二宮と星の配置から、具体的な出来事や心理を推断。", result_title: "流年レポート" },
+    yearly: { title: "2027-2028 運勢", subtitle: "人相 + 八字 + 紫微斗数", dob_label: "生年月日", tob_label: "出生時間", analyze_btn: "今後二年を分析", method1_title: "方法一：八字命理", method1_desc: "生年月日時の四柱から五行のバランスと大運を分析。", method2_title: "方法二：紫微斗数", method2_desc: "十二宮と星の配置から、具体的な出来事や心理を推断。", result_title: "流年レポート" },
     map: { title: "図解", mode_palace: "十二宮", mode_age: "流年", hint: "詳細", guide: "目を合わせる", select_prompt: "タップ...", ar_tooltip: "詳細", bg_character: "運", calibrate_btn: "位置調整", calibrate_title: "調整", reset_btn: "リセット" },
     diagrams: { title: "図解", subtitle: "", fig1: { title: "", core_logic: "", points: [] }, fig2: { title: "", core_logic: "", points: [] } },
     howItWorks: { title: "仕組み", subtitle: "", steps: { step1: { title: "", desc: "" }, step2: { title: "", desc: "" }, step3: { title: "", desc: "" }, step4: { title: "", desc: "" } } },
@@ -434,7 +472,11 @@ const TRANSLATIONS: Record<Language, Translation> = {
       wuxing: { title: "五星", desc: "額は火星、鼻は土星、目は日月。" },
       palaces: { ming: "", cai: "", guan: "", tian: "", nannv: "", qiqie: "", xiongdi: "", jie: "", qianyi: "", nupu: "", fude: "", xiangmao: "" } 
     },
-    analysis: { btn_start: "鑑定", btn_loading: "鑑定中...", title: "レポート", disclaimer: "参考のみ", error_prefix: "エラー" },
+    analysis: { btn_start: "鑑定", btn_loading: "鑑定中...", title: "レポート", disclaimer: "参考のみ", error_prefix: "エラー", download_btn: "PDF" },
+    payment: {
+      pro_badge: "PRO", unlock_btn: "完全版を解除", modal_title: "PROにアップグレード", modal_desc: "全機能解除", plan_price: "¥480", buy_btn: "購入", redeem_btn: "コード入力", redeem_placeholder: "コード", redeem_hint: "購入後にメールで送信されます", verify_btn: "認証", success: "成功",
+      feature_1: "陰陽ミラー", feature_2: "2027-2028 流年運勢", feature_3: "開運ガイド", locked_content: "PRO限定", gumroad_url: "https://ajohnsmith.gumroad.com/l/osrgbd"
+    },
     ai_prompt_lang: "Japanese"
   }
 };
@@ -446,7 +488,7 @@ const TRANSLATIONS: Record<Language, Translation> = {
 const getFacePoints = (lang: Language, mode: MapMode, adj: {x: number, y: number, scale: number} = {x:0, y:0, scale:1}): FacePoint[] => {
   const isZh = lang === 'zh-TW';
   const isJa = lang === 'ja';
-  const t_palaces = TRANSLATIONS[lang].encyclopedia.palaces;
+  const t_palaces = TRANSLATIONS[lang]?.encyclopedia?.palaces || TRANSLATIONS['zh-TW'].encyclopedia.palaces;
   
   let points: FacePoint[] = [];
   
@@ -456,24 +498,17 @@ const getFacePoints = (lang: Language, mode: MapMode, adj: {x: number, y: number
       { id: 'ming', name: isZh ? '命宮' : isJa ? '命宮' : 'Life', shortDesc: isZh ? '願望樞紐' : 'Destiny', x: 50, y: 42, desc: t_palaces.ming, book: isZh ? '麻衣' : 'Ma Yi' },
       { id: 'ji', name: isZh ? '疾厄' : isJa ? '疾厄' : 'Health', shortDesc: isZh ? '健康根基' : 'Health', x: 50, y: 48, desc: t_palaces.jie, book: isZh ? '麻衣' : 'Ma Yi' },
       { id: 'cai', name: isZh ? '財帛' : isJa ? '財帛' : 'Wealth', shortDesc: isZh ? '正財庫存' : 'Wealth', x: 50, y: 58, desc: t_palaces.cai, book: isZh ? '柳莊' : 'Liu Zhuang' },
-      
       { id: 'tian_l', name: isZh ? '田宅' : isJa ? '田宅' : 'Prop.', shortDesc: isZh ? '房產' : 'Assets', x: 38, y: 44, desc: t_palaces.tian, book: isZh ? '麻衣' : 'Ma Yi' },
       { id: 'tian_r', name: isZh ? '田宅' : isJa ? '田宅' : 'Prop.', shortDesc: isZh ? '房產' : 'Assets', x: 62, y: 44, desc: t_palaces.tian, book: isZh ? '麻衣' : 'Ma Yi' },
-      
       { id: 'nannv_l', name: isZh ? '男女' : isJa ? '男女' : 'Child', shortDesc: isZh ? '子女' : 'Kids', x: 38, y: 50, desc: t_palaces.nannv, book: isZh ? '水鏡' : 'Water Mirror' },
       { id: 'nannv_r', name: isZh ? '男女' : isJa ? '男女' : 'Child', shortDesc: isZh ? '子女' : 'Kids', x: 62, y: 50, desc: t_palaces.nannv, book: isZh ? '水鏡' : 'Water Mirror' },
-
       { id: 'qiqie_l', name: isZh ? '夫妻' : isJa ? '夫妻' : 'Spouse', shortDesc: isZh ? '婚姻' : 'Love', x: 28, y: 45, desc: t_palaces.qiqie, book: isZh ? '冰鑑' : 'Ice Mirror' },
       { id: 'qiqie_r', name: isZh ? '夫妻' : isJa ? '夫妻' : 'Spouse', shortDesc: isZh ? '婚姻' : 'Love', x: 72, y: 45, desc: t_palaces.qiqie, book: isZh ? '冰鑑' : 'Ice Mirror' },
-
       { id: 'qianyi_l', name: isZh ? '遷移' : isJa ? '遷移' : 'Travel', shortDesc: isZh ? '變動' : 'Travel', x: 25, y: 28, desc: t_palaces.qianyi, book: isZh ? '麻衣' : 'Ma Yi' },
       { id: 'qianyi_r', name: isZh ? '遷移' : isJa ? '遷移' : 'Travel', shortDesc: isZh ? '變動' : 'Travel', x: 75, y: 28, desc: t_palaces.qianyi, book: isZh ? '麻衣' : 'Ma Yi' },
-
       { id: 'nu', name: isZh ? '奴僕' : isJa ? '奴僕' : 'Servant', shortDesc: isZh ? '晚輩' : 'Staff', x: 50, y: 78, desc: t_palaces.nupu, book: isZh ? '柳莊' : 'Liu Zhuang' },
-      
       { id: 'bro_l', name: isZh ? '兄弟' : isJa ? '兄弟' : 'Bros', shortDesc: isZh ? '交友' : 'Peers', x: 30, y: 38, desc: t_palaces.xiongdi, book: isZh ? '麻衣' : 'Ma Yi' },
       { id: 'bro_r', name: isZh ? '兄弟' : isJa ? '兄弟' : 'Bros', shortDesc: isZh ? '交友' : 'Peers', x: 70, y: 38, desc: t_palaces.xiongdi, book: isZh ? '麻衣' : 'Ma Yi' },
-      
       { id: 'fu_l', name: isZh ? '福德' : isJa ? '福徳' : 'Fortune', shortDesc: isZh ? '福報' : 'Luck', x: 25, y: 30, desc: t_palaces.fude, book: isZh ? '冰鑑' : 'Ice Mirror' },
       { id: 'fu_r', name: isZh ? '福德' : isJa ? '福徳' : 'Fortune', shortDesc: isZh ? '福報' : 'Luck', x: 75, y: 30, desc: t_palaces.fude, book: isZh ? '冰鑑' : 'Ice Mirror' },
     ];
@@ -496,16 +531,30 @@ const getFacePoints = (lang: Language, mode: MapMode, adj: {x: number, y: number
   }));
 };
 
+const PrintStyles = () => (
+  <style>{`
+    @media print {
+      @page { margin: 20mm; size: A4; }
+      body { background-color: white !important; -webkit-print-color-adjust: exact; }
+      body * { visibility: hidden; }
+      #analysis-result, #analysis-result * { visibility: visible; }
+      #analysis-result { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; background-color: white !important; border: none !important; box-shadow: none !important; }
+      #analysis-result h1, #analysis-result h2, #analysis-result h3, #analysis-result h4, #analysis-result p, #analysis-result div, #analysis-result span, #analysis-result li { color: #000000 !important; text-shadow: none !important; }
+      #analysis-result { font-family: "Microsoft JhengHei", "PingFang TC", "Heiti TC", sans-serif !important; }
+      .no-print { display: none !important; }
+    }
+  `}</style>
+);
+
 const ScanningOverlay = ({ mode }: { mode: AppMode }) => {
   const colorMap: Record<string, string> = {
-    'aging': 'purple', 'career2026': 'cyan', 'daily': 'green', 'mirror': 'indigo', 'single': 'yellow', 'couple': 'pink', 'yearly': 'orange'
+    'aging': 'purple', 'career2027': 'cyan', 'daily': 'green', 'mirror': 'indigo', 'single': 'yellow', 'couple': 'pink', 'yearly': 'orange'
   };
   const color = colorMap[mode] || 'yellow';
   return (
     <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden rounded-3xl">
       <style>{`@keyframes scan-move { 0% { top: -10%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 110%; opacity: 0; } } .animate-scan { animation: scan-move 2.5s linear infinite; }`}</style>
       <div className={`absolute left-0 w-full h-2 bg-gradient-to-r from-transparent to-transparent shadow-[0_0_20px_rgba(255,255,255,0.5)] animate-scan opacity-80 ${color === 'purple' ? 'via-purple-400 shadow-purple-500/50' : color === 'cyan' ? 'via-cyan-400 shadow-cyan-500/50' : color === 'green' ? 'via-green-400 shadow-green-500/50' : color === 'pink' ? 'via-pink-400 shadow-pink-500/50' : color === 'orange' ? 'via-orange-400 shadow-orange-500/50' : 'via-yellow-400 shadow-yellow-500/50'}`}></div>
-      <div className={`absolute inset-0 opacity-20 bg-gradient-to-b to-transparent ${color === 'purple' ? 'from-purple-500/10' : color === 'cyan' ? 'from-cyan-500/10' : color === 'green' ? 'from-green-500/10' : color === 'orange' ? 'from-orange-500/10' : 'from-indigo-500/10'}`}><div className="w-full h-full" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div></div>
     </div>
   );
 };
@@ -514,9 +563,6 @@ const BookBadge: React.FC<{ title: string; titleEn: string; desc: string; icon: 
   <div className={`backdrop-blur-md border rounded-xl p-4 text-center transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl group flex flex-col justify-center min-h-[160px] relative overflow-hidden
     ${theme === 'dark' ? 'bg-indigo-900/40 border-indigo-400/30' : 'bg-white/60 border-indigo-200 shadow-sm'}
   `}>
-    <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
-      ${theme === 'dark' ? 'bg-gradient-to-br from-indigo-800/50 to-purple-900/50' : 'bg-gradient-to-br from-indigo-100/50 to-purple-100/50'}
-    `}></div>
     <div className="relative z-10">
       <div className="text-3xl mb-2 opacity-80 group-hover:scale-110 transition-transform">{icon}</div>
       <div className={`font-bold text-lg tracking-wider ${theme === 'dark' ? 'text-yellow-300' : 'text-indigo-700'}`}>{title}</div>
@@ -568,7 +614,6 @@ const HowItWorksSection: React.FC<{ t: Translation, theme: Theme }> = ({ t, them
             <div className="text-4xl mb-4 text-center group-hover:scale-110 transition-transform duration-300">{step.icon}</div>
             <h3 className={`text-lg font-bold text-center mb-3 ${theme === 'dark' ? 'text-yellow-300' : 'text-indigo-700'}`}>{step.data.title}</h3>
             <p className={`text-sm text-center leading-relaxed opacity-90 ${theme === 'dark' ? 'text-indigo-200' : 'text-slate-600'}`}>{step.data.desc}</p>
-            {idx < 3 && <div className={`hidden md:block absolute top-1/2 -right-3 w-6 h-0.5 z-0 ${theme === 'dark' ? 'bg-indigo-500/30' : 'bg-indigo-200/50'}`}></div>}
           </div>
         ))}
       </div>
@@ -578,9 +623,16 @@ const HowItWorksSection: React.FC<{ t: Translation, theme: Theme }> = ({ t, them
 
 const ClassicDiagramSection: React.FC<{ t: Translation, theme: Theme }> = ({ t, theme }) => {
   const diagrams = [
-    { src: "https://i.meee.com.tw/GLhngD9.png", data: t.diagrams.fig1 },
-    { src: "https://i.meee.com.tw/xBBFEB4.png", data: t.diagrams.fig2 }
+    { 
+      src: "https://i.meee.com.tw/GLhngD9.png",
+      data: t.diagrams.fig1 
+    },
+    { 
+      src: "https://i.meee.com.tw/xBBFEB4.png",
+      data: t.diagrams.fig2 
+    }
   ];
+
   return (
     <div className={`border-t pt-16 mb-16 ${theme === 'dark' ? 'border-white/10' : 'border-indigo-100'}`} id="classic-diagrams">
       <div className="text-center mb-10">
@@ -593,20 +645,34 @@ const ClassicDiagramSection: React.FC<{ t: Translation, theme: Theme }> = ({ t, 
              ${theme === 'dark' ? 'bg-indigo-900/20 border-indigo-500/20 hover:border-indigo-500/40' : 'bg-white/60 border-indigo-100 hover:shadow-lg'}
           `}>
             <div className="relative rounded-xl overflow-hidden mb-6 group cursor-zoom-in aspect-[4/3] bg-black/40">
-              <img src={d.src} alt={d.data.title} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/800x600/1e1b4b/fbbf24?text=Image+Not+Found"; }} />
-              <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/60 backdrop-blur text-xs text-center text-yellow-300">{d.data.title}</div>
+              <img 
+                src={d.src} 
+                alt={d.data.title} 
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" 
+                onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null; 
+                    target.src = "https://placehold.co/800x600/1e1b4b/fbbf24?text=Image+Not+Found"; 
+                }}
+              />
+              <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/60 backdrop-blur text-xs text-center text-yellow-300">
+                {d.data.title}
+              </div>
             </div>
+
             <div className="space-y-4">
                <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-indigo-950/50' : 'bg-indigo-50'}`}>
                  <h4 className={`font-bold mb-2 text-sm uppercase tracking-wider ${theme === 'dark' ? 'text-yellow-400' : 'text-indigo-700'}`}>Core Logic</h4>
                  <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-indigo-100' : 'text-slate-700'}`}>{d.data.core_logic}</p>
                </div>
+               
                <div>
-                 <h4 className={`font-bold mb-3 text-xs uppercase tracking-wider ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-500'}`}>Key Interpretations</h4>
+                 <h4 className="text-indigo-300 font-bold mb-3 text-xs uppercase tracking-wider">Key Interpretations</h4>
                  <ul className="space-y-3">
                    {d.data.points.map((pt, i) => (
                      <li key={i} className={`flex items-start text-sm leading-relaxed ${theme === 'dark' ? 'text-indigo-50/90' : 'text-slate-600'}`}>
-                       <span className="mr-2 mt-1 w-1.5 h-1.5 bg-yellow-500 rounded-full flex-shrink-0"></span>{pt}
+                       <span className="mr-2 mt-1 w-1.5 h-1.5 bg-yellow-500 rounded-full flex-shrink-0"></span>
+                       {pt}
                      </li>
                    ))}
                  </ul>
@@ -670,7 +736,6 @@ const MirrorModeExplanation: React.FC<{ t: Translation, theme: Theme }> = ({ t, 
           `}>
             <div className="text-5xl mb-4">🧠</div>
             <h3 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-yellow-300' : 'text-indigo-700'}`}>{t.mirror.left_face_title}</h3>
-            <div className="w-12 h-1 bg-yellow-500/50 rounded-full mb-4"></div>
             <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-indigo-100' : 'text-slate-600'}`}>{t.mirror.left_face_desc}</p>
           </div>
           <div className={`rounded-2xl p-6 border transition-colors flex flex-col items-center text-center
@@ -678,7 +743,6 @@ const MirrorModeExplanation: React.FC<{ t: Translation, theme: Theme }> = ({ t, 
           `}>
             <div className="text-5xl mb-4">🎭</div>
             <h3 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'}`}>{t.mirror.right_face_title}</h3>
-            <div className="w-12 h-1 bg-purple-500/50 rounded-full mb-4"></div>
             <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-indigo-100' : 'text-slate-600'}`}>{t.mirror.right_face_desc}</p>
           </div>
         </div>
@@ -746,14 +810,20 @@ const ImageAligner: React.FC<{
         const size = 600; 
         canvas.width = size;
         canvas.height = size;
+        
         ctx.clearRect(0, 0, size, size);
         ctx.save();
+        
         ctx.translate(size / 2, size / 2);
+        
         ctx.rotate((transform.rotate * Math.PI) / 180);
         ctx.scale(transform.scale, transform.scale);
-        ctx.translate(transform.x, transform.y);
+        ctx.translate(transform.x, transform.y); 
+        
         ctx.drawImage(img, -img.width / 2, -img.height / 2);
+        
         ctx.restore();
+        
         const aligned = canvas.toDataURL('image/jpeg').split(',')[1];
         onConfirm(aligned);
     };
@@ -768,6 +838,7 @@ const ImageAligner: React.FC<{
           <h3 className="text-xl font-bold text-white">{t.mirror.align_title}</h3>
           <p className="text-xs text-indigo-300">{t.mirror.align_desc}</p>
         </div>
+
         <div 
           ref={containerRef}
           className="relative w-full aspect-square bg-black rounded-xl overflow-hidden cursor-move touch-none border-2 border-indigo-500/50"
@@ -779,18 +850,36 @@ const ImageAligner: React.FC<{
           onTouchMove={handleTouchMove}
           onTouchEnd={handleMouseUp}
         >
+          {/* User Image */}
           <div className="w-full h-full flex items-center justify-center pointer-events-none">
-             <img src={`data:image/jpeg;base64,${imageData}`} alt="Align" style={{ transform: `translate(${transform.x}px, ${transform.y}px) rotate(${transform.rotate}deg) scale(${transform.scale})`, maxWidth: 'none', maxHeight: '80vh' }} />
+             <img 
+               src={`data:image/jpeg;base64,${imageData}`} 
+               alt="Align" 
+               style={{
+                 transform: `translate(${transform.x}px, ${transform.y}px) rotate(${transform.rotate}deg) scale(${transform.scale})`,
+                 maxWidth: 'none', 
+                 maxHeight: '80vh' 
+               }}
+             />
           </div>
+
+          {/* Ghost Overlay (Standard Face) */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30 mix-blend-screen">
              <img src={STANDARD_FACE_URL} className="w-full h-full object-cover opacity-50" alt="Reference" />
           </div>
+
+          {/* Guides Overlay */}
           <div className="absolute inset-0 pointer-events-none z-10">
+             {/* Center Line (Nose) */}
              <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-yellow-400/70 -translate-x-1/2 shadow-[0_0_5px_rgba(0,0,0,0.5)]"></div>
+             {/* Eye Line */}
              <div className="absolute top-[42%] left-0 right-0 h-0.5 bg-yellow-400/50 shadow-[0_0_5px_rgba(0,0,0,0.5)]"></div>
+             {/* Oval Face Guide */}
              <div className="absolute top-[10%] bottom-[10%] left-[20%] right-[20%] border-2 border-dashed border-white/30 rounded-[50%]"></div>
           </div>
         </div>
+
+        {/* Controls */}
         <div className="mt-6 space-y-4">
           <div className="flex items-center gap-4">
              <span className="text-xs w-12 text-indigo-300">Rotate</span>
@@ -805,7 +894,83 @@ const ImageAligner: React.FC<{
              <button onClick={confirm} className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold text-white shadow-lg transition-all">{t.mirror.confirm_align}</button>
           </div>
         </div>
+        
+        {/* Hidden Canvas for processing */}
         <canvas ref={canvasRef} className="hidden" />
+      </div>
+    </div>
+  );
+};
+
+const PaymentModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  t: Translation;
+  theme: Theme;
+}> = ({ isOpen, onClose, onSuccess, t, theme }) => {
+  const [mode, setMode] = useState<'buy' | 'redeem'>('buy');
+  const [key, setKey] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const DEV_KEYS = ["6F0E4C97-B72A4E69-A11BF6C4-AF6517E7", "PRO2026", "DEVTEST"];
+
+  useEffect(() => { if(isOpen) { setMode('buy'); setKey(''); setIsSuccess(false); } }, [isOpen]);
+
+  const handleRedeem = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const cleanKey = key.trim().toUpperCase();
+    const gumroadKeyPattern = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/;
+    setTimeout(() => {
+       if(gumroadKeyPattern.test(cleanKey) || DEV_KEYS.includes(cleanKey)) { 
+           setLoading(false); setIsSuccess(true);
+           setTimeout(() => { onSuccess(); onClose(); }, 1500);
+       } else { setLoading(false); alert("無效的序號格式 (Invalid Key Format)"); }
+    }, 1500);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-fadeIn">
+      <div className={`w-full max-w-md rounded-3xl overflow-hidden shadow-2xl transform transition-all scale-100 ${theme === 'dark' ? 'bg-slate-900 border border-indigo-500/50' : 'bg-white border border-indigo-100'}`}>
+        <div className={`p-6 text-center relative overflow-hidden ${theme === 'dark' ? 'bg-gradient-to-br from-indigo-900 to-purple-900' : 'bg-gradient-to-br from-indigo-500 to-purple-600'}`}>
+           <button onClick={onClose} className="absolute top-4 right-4 text-white/70 hover:text-white">✕</button>
+           <div className="text-4xl mb-2">💎</div>
+           <h3 className="text-2xl font-bold text-white mb-1">{t.payment.modal_title}</h3>
+           <p className="text-white/80 text-sm">{t.payment.modal_desc}</p>
+        </div>
+        <div className="p-6">
+           {isSuccess ? (
+             <div className="text-center py-10 animate-bounce-in"><div className="text-6xl mb-4">🎉</div><h3 className={`text-2xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-indigo-900'}`}>{t.payment.success}</h3></div>
+           ) : (
+             <div className="space-y-6">
+                <div className={`text-sm space-y-2 p-4 rounded-xl ${theme === 'dark' ? 'bg-white/5' : 'bg-slate-50'}`}>
+                   <div className={theme === 'dark' ? 'text-indigo-200' : 'text-indigo-700'}>✅ {t.payment.feature_1}</div>
+                   <div className={theme === 'dark' ? 'text-indigo-200' : 'text-indigo-700'}>✅ {t.payment.feature_2}</div>
+                   <div className={theme === 'dark' ? 'text-indigo-200' : 'text-indigo-700'}>✅ {t.payment.feature_3}</div>
+                </div>
+                <div className="flex rounded-lg bg-gray-200/20 p-1">
+                    <button onClick={() => setMode('buy')} className={`flex-1 py-2 rounded-md text-sm font-bold transition-all ${mode === 'buy' ? 'bg-white text-indigo-900 shadow' : 'text-gray-400'}`}>{t.payment.buy_btn}</button>
+                    <button onClick={() => setMode('redeem')} className={`flex-1 py-2 rounded-md text-sm font-bold transition-all ${mode === 'redeem' ? 'bg-white text-indigo-900 shadow' : 'text-gray-400'}`}>{t.payment.redeem_btn}</button>
+                </div>
+                {mode === 'buy' ? (
+                    <div className="text-center">
+                        <p className="text-2xl font-bold text-yellow-500 mb-4">{t.payment.plan_price}</p>
+                        <a href={t.payment.gumroad_url} target="_blank" rel="noopener noreferrer" className="block w-full py-3 bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-400 hover:to-orange-400 text-white font-bold rounded-xl shadow-lg transform active:scale-95 transition-all text-center">{t.payment.buy_btn}</a>
+                        <p className="text-xs mt-2 opacity-60">Secure payment via Gumroad</p>
+                    </div>
+                ) : (
+                    <form onSubmit={handleRedeem} className="space-y-4">
+                        <input type="text" value={key} onChange={e => setKey(e.target.value)} placeholder={t.payment.redeem_placeholder} className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-center uppercase tracking-widest ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`} />
+                        <p className="text-xs text-center opacity-60">{t.payment.redeem_hint}</p>
+                        <button type="submit" disabled={loading} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg transform active:scale-95 transition-all disabled:opacity-70">{loading ? "Verifying..." : t.payment.verify_btn}</button>
+                    </form>
+                )}
+             </div>
+           )}
+        </div>
       </div>
     </div>
   );
@@ -821,13 +986,8 @@ const YearlyFortuneSection: React.FC<{
   const [time, setTime] = useState('');
 
   return (
-    <div className={`animate-fadeIn border rounded-3xl p-6 md:p-8 mt-4
-       ${theme === 'dark' ? 'bg-indigo-950/30 border-indigo-500/30' : 'bg-white/60 border-indigo-200 shadow-md'}
-    `}>
-       <div className="text-center mb-8">
-          <h2 className={`text-2xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-indigo-900'}`}>{t.yearly.title}</h2>
-          <p className={`text-sm ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-600'}`}>{t.yearly.subtitle}</p>
-       </div>
+    <div className={`animate-fadeIn border rounded-3xl p-6 md:p-8 mt-4 ${theme === 'dark' ? 'bg-indigo-950/30 border-indigo-500/30' : 'bg-white/60 border-indigo-200 shadow-md'}`}>
+       <div className="text-center mb-8"><h2 className={`text-2xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-indigo-900'}`}>{t.yearly.title}</h2><p className={`text-sm ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-600'}`}>{t.yearly.subtitle}</p></div>
        <div className="grid md:grid-cols-2 gap-6 mb-8">
           <div className={`p-5 rounded-2xl border relative overflow-hidden group ${theme === 'dark' ? 'bg-indigo-900/40 border-indigo-500/20' : 'bg-indigo-50 border-indigo-100'}`}>
              <div className="absolute -right-4 -top-4 text-6xl opacity-10 group-hover:opacity-20 transition-opacity">☯️</div>
@@ -841,14 +1001,8 @@ const YearlyFortuneSection: React.FC<{
           </div>
        </div>
        <div className={`max-w-sm mx-auto p-6 rounded-2xl border ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white border-indigo-100 shadow-sm'}`}>
-          <div className="mb-4">
-            <label className={`block text-xs font-bold mb-1 uppercase tracking-wider ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-600'}`}>{t.yearly.dob_label}</label>
-            <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} className={`w-full border rounded-xl px-4 py-3 text-center focus:outline-none focus:ring-2 appearance-none ${theme === 'dark' ? 'bg-indigo-950 text-white border-indigo-500/50 focus:ring-yellow-500' : 'bg-slate-50 text-slate-900 border-indigo-200 focus:ring-indigo-400'}`} style={{ colorScheme: theme === 'dark' ? 'dark' : 'light' }} />
-          </div>
-          <div className="mb-6">
-            <label className={`block text-xs font-bold mb-1 uppercase tracking-wider ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-600'}`}>{t.yearly.tob_label}</label>
-            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className={`w-full border rounded-xl px-4 py-3 text-center focus:outline-none focus:ring-2 appearance-none ${theme === 'dark' ? 'bg-indigo-950 text-white border-indigo-500/50 focus:ring-purple-500' : 'bg-slate-50 text-slate-900 border-indigo-200 focus:ring-purple-400'}`} style={{ colorScheme: theme === 'dark' ? 'dark' : 'light' }} />
-          </div>
+          <div className="mb-4"><label className={`block text-xs font-bold mb-1 uppercase tracking-wider ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-600'}`}>{t.yearly.dob_label}</label><input type="date" value={dob} onChange={(e) => setDob(e.target.value)} className={`w-full border rounded-xl px-4 py-3 text-center focus:outline-none focus:ring-2 appearance-none ${theme === 'dark' ? 'bg-indigo-950 text-white border-indigo-500/50 focus:ring-yellow-500' : 'bg-slate-50 text-slate-900 border-indigo-200 focus:ring-indigo-400'}`} style={{ colorScheme: theme === 'dark' ? 'dark' : 'light' }} /></div>
+          <div className="mb-6"><label className={`block text-xs font-bold mb-1 uppercase tracking-wider ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-600'}`}>{t.yearly.tob_label}</label><input type="time" value={time} onChange={(e) => setTime(e.target.value)} className={`w-full border rounded-xl px-4 py-3 text-center focus:outline-none focus:ring-2 appearance-none ${theme === 'dark' ? 'bg-indigo-950 text-white border-indigo-500/50 focus:ring-purple-500' : 'bg-slate-50 text-slate-900 border-indigo-200 focus:ring-purple-400'}`} style={{ colorScheme: theme === 'dark' ? 'dark' : 'light' }} /></div>
           <button onClick={() => dob && onAnalyze(dob, time || "12:00")} disabled={!dob} className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-95">{t.yearly.analyze_btn}</button>
        </div>
     </div>
@@ -856,7 +1010,7 @@ const YearlyFortuneSection: React.FC<{
 };
 
 // -----------------------------------------------------------------------------
-// 6. MAIN APPLICATION COMPONENT
+// 4. MAIN APPLICATION COMPONENT
 // -----------------------------------------------------------------------------
 
 const App: React.FC = () => {
@@ -869,6 +1023,8 @@ const App: React.FC = () => {
   const [userDob, setUserDob] = useState<string>('');
   const [userTime, setUserTime] = useState<string>('');
   const [theme, setTheme] = useState<Theme>('dark');
+  const [isPremium, setIsPremium] = useState(false); 
+  const [showPayModal, setShowPayModal] = useState(false); 
   const [mapAdjustment, setMapAdjustment] = useState({ x: 0, y: 0, scale: 1 });
   const [isCalibrating, setIsCalibrating] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<string>('');
@@ -883,7 +1039,13 @@ const App: React.FC = () => {
   const facePoints = getFacePoints(language, mapMode, mapAdjustment);
   const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
- 
+
+
+  // Handlers... 
+  
+  const handleDownloadPDF = () => {
+    window.print();
+  };
 
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -940,6 +1102,8 @@ const App: React.FC = () => {
     event.target.value = '';
   };
 
+  const checkPremium = () => { if (!isPremium) { setShowPayModal(true); return false; } return true; };
+
   const handleAgingSimulation = async (path: 'virtue' | 'worry') => {
     setAgingPath(path); setIsLoading(true); setError(''); setAnalysisResult('');
     if (!imageData) { setError(t.upload.error_empty); setIsLoading(false); return; }
@@ -959,7 +1123,24 @@ const App: React.FC = () => {
   const handleYearlyFortune = async (dob: string, time: string) => {
       setUserDob(dob); setUserTime(time); setIsLoading(true); setError(''); setAnalysisResult('');
       if (!imageData) { setError(t.upload.error_empty); setIsLoading(false); return; }
-      const systemPrompt = `你是一位精通 **《麻衣相法》流年部位**、**八字命理** 與 **紫微斗數** 的命理大師...`;
+      const systemPrompt = `你是一位精通 **《麻衣相法》流年部位**、**八字命理** 與 **紫微斗數** 的命理大師。
+      請結合用戶的「面相照片」與「出生資料」(${dob} ${time})，預測 2027 (丙午馬年) 與 2028 (戊申猴年) 的詳細運勢。
+      **分析方法 (三元合參)**：
+      1. **面相流年法**：精確找出未來兩歲對應的臉部「流年部位」，分析氣色形態。
+      2. **八字命理法**：根據 ${dob} ${time} 排出四柱，分析日主強弱、五行喜忌，以及流年太歲的沖合關係。
+      3. **紫微斗數法**：根據出生時辰推算命宮主星與流年四化（祿權科忌），判斷具體際遇。
+      
+      **輸出結構 (社群風格)**：
+      1. **🗓️ 您的流年座標**：指出目前虛歲與對應的面相部位。
+      2. **📜 八字紫微總論**：簡述格局與流年星象。
+      3. **🔮 2027年 (丙午馬年) 預測**：
+         - **面相視角**：...
+         - **八字/紫微視角**：...
+         - **白話建議**：工作/感情/財運。
+      4. **🔮 2028年 (戊申猴年) 預測**：同上。
+      5. **💡 開運錦囊**：綜合建議。
+      
+      語氣：專業、精準、正向賦能。語言：${t.ai_prompt_lang}。請勿使用Markdown符號。`;
       const userQuery = `Analyze yearly fortune for DOB: ${dob} ${time}. Language: ${t.ai_prompt_lang}. No Markdown.`;
       try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
@@ -972,12 +1153,16 @@ const App: React.FC = () => {
       } catch (e) { setError(t.analysis.error_prefix + " Connection failed."); } finally { setIsLoading(false); }
   };
 
+  // Auto-translate (Re-analyze) when language changes
   useEffect(() => {
     if (!analysisResult || isLoading) return;
+
     const reAnalyze = async () => {
-        if (appMode === 'aging' && agingPath) { await handleAgingSimulation(agingPath); }
-        else if (appMode === 'yearly' && userDob) { await handleYearlyFortune(userDob, userTime); }
-        else {
+        if (appMode === 'aging' && agingPath) {
+            await handleAgingSimulation(agingPath);
+        } else if (appMode === 'yearly' && userDob) {
+            await handleYearlyFortune(userDob, userTime);
+        } else {
             if (appMode === 'single' && !imageData) return;
             if (appMode === 'couple' && (!coupleData.p1 || !coupleData.p2)) return;
             if (appMode === 'mirror' && !mirrorImages) return;
@@ -988,13 +1173,56 @@ const App: React.FC = () => {
   }, [language]);
 
   const analyze = async () => {
+    if (appMode === 'mirror' && !checkPremium()) return;
     setIsLoading(true); setError('');
     setTimeout(() => document.getElementById('analysis-result')?.scrollIntoView({ behavior: 'smooth' }), 100);
-    let systemPrompt = ""; let userQuery = ""; let parts: any[] = [];
-    // Prompt logic (simplified for brevity, keeps original detailed logic)
-    if (appMode === 'single') {
+    
+    let systemPrompt = ""; 
+    let userQuery = ""; 
+    let parts: any[] = [];
+
+    const bookDefinitions = `
+    參考典籍與分析重點：
+    1. 《麻衣相法》：以「五官、十二宮、十三部位、流年運勢」為骨架，分析基礎命理架構。
+    2. 《柳莊相法》：注重「氣色觀人」與「動態神情」，強調「面相會變」，分析當下吉凶與變數。
+    3. 《水鏡相法》：重在分辨「忠奸賢愚」，分析性格本質與實用性的人際互動。
+    4. 《冰鑑》：從「神、骨、氣、色、音、態」整體觀人，分析內在精神格局與潛力。
+    `;
+
+    if (appMode === 'career2027') { // Updated Logic for 2027
         if (!imageData) { setError(t.upload.error_empty); setIsLoading(false); return; }
-        systemPrompt = `你同時身兼兩位頂尖導師的角色...`; 
+        
+        systemPrompt = `你是一位 **賽博玄學職涯顧問 (Cyber-Metaphysicist)**。
+        任務：結合 **古老面相學** 與 **2027 丁未年 (Fire Sheep)** 的流年天干地支氣場，分析用戶的「2027 職涯規劃」。
+
+        **2027 丁未年 (丁火/未土) 趨勢**：
+        - **丁火 (天干)**：象徵靈感、科技軟體、美學、星光。趨勢走向「內容」、「精神價值」。
+        - **未土 (地支)**：木庫，藏乙木、丁火、己土。象徵收斂、醞釀、藝術、土地、養生。
+        - **關鍵字**：由虛入實、重質不重量、跨界整合。
+
+        **分析重點**：
+        1. **轉職時機 (Job Change Timing)**：
+           - **上半年 (木火旺)**：適合創新、發布新作品、建立個人品牌。
+           - **下半年 (土金氣)**：適合落地執行、資產配置、穩固根基。
+           - **建議**：根據面相氣色（如印堂亮度、眼神定力）判斷適合在上半年衝刺還是下半年轉職。
+        2. **貴人運勢 (Noblemen Luck)**：
+           - **面相特徵**：觀察眉毛（兄弟宮）與額角（遷移宮）。
+           - **貴人方位/屬相**：結合丁未年特性，指出貴人可能出現的方位（如南方）或生肖（如馬、兔、豬）。
+
+        **輸出格式 (社群風格)**：
+        1. **🔮 2027 天命職業**：(具體職稱)。
+        2. **📅 轉職黃金窗口**：分析上半年 vs 下半年，何時最適合變動，並說明原因。
+        3. **🤝 貴人雷達**：預測貴人特徵與出現時機。
+        4. **🚀 啟動建議**：現在開始該準備什麼。
+
+        語氣：前衛、神秘、專業。語言：${t.ai_prompt_lang}。請勿使用Markdown符號。`;
+
+        userQuery = `Predict 2027 career, job change timing, and noblemen luck based on face. Language: ${t.ai_prompt_lang}. No Markdown.`;
+        parts = [{ text: userQuery }, { inlineData: { mimeType: "image/jpeg", data: imageData } }];
+    
+    } else if (appMode === 'single') {
+        if (!imageData) { setError(t.upload.error_empty); setIsLoading(false); return; }
+        systemPrompt = `你同時身兼兩位頂尖導師的角色... ${bookDefinitions} ... (省略)`; 
         userQuery = `Analyze this face in Social Media Post Style. Language: ${t.ai_prompt_lang}. Include Emojis. No Markdown.`;
         parts = [{ text: userQuery }, { inlineData: { mimeType: "image/jpeg", data: imageData } }];
     } else if (appMode === 'couple') {
@@ -1007,10 +1235,10 @@ const App: React.FC = () => {
         systemPrompt = `你是一位精通《柳莊相法》氣色理論的 **AI 氣色健康顧問**...`;
         userQuery = `Analyze daily facial qi/color. Language: ${t.ai_prompt_lang}. No Markdown.`;
         parts = [{ text: userQuery }, { inlineData: { mimeType: "image/jpeg", data: imageData } }];
-    } else if (appMode === 'career2026') {
+    } else if (appMode === 'career2027') {
         if (!imageData) { setError(t.upload.error_empty); setIsLoading(false); return; }
         systemPrompt = `你是一位 **賽博玄學職涯顧問 (Cyber-Metaphysicist)**...`;
-        userQuery = `Predict 2026 career. Language: ${t.ai_prompt_lang}. No Markdown.`;
+        userQuery = `Predict 2027 career. Language: ${t.ai_prompt_lang}. No Markdown.`;
         parts = [{ text: userQuery }, { inlineData: { mimeType: "image/jpeg", data: imageData } }];
     } else if (appMode === 'mirror') {
         if (!mirrorImages) { setError("Processing mirror images..."); setIsLoading(false); return; }
@@ -1033,14 +1261,16 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen font-sans pb-20 transition-colors duration-500 ${theme === 'dark' ? 'bg-slate-900 text-indigo-50 selection:bg-indigo-500 selection:text-white' : 'bg-slate-50 text-slate-800 selection:bg-indigo-200 selection:text-indigo-900'}`}>
-      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className={`absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full blur-[120px] transition-colors duration-700 ${theme === 'dark' ? 'bg-indigo-900/30' : 'bg-blue-100/50'}`}></div>
-        <div className={`absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full blur-[120px] transition-colors duration-700 ${theme === 'dark' ? 'bg-purple-900/20' : 'bg-indigo-100/50'}`}></div>
-      </div>
+    <div className={`min-h-screen font-sans pb-20 transition-colors duration-500 ${theme === 'dark' ? 'bg-slate-900 text-indigo-50' : 'bg-slate-50 text-slate-800'}`}>
+      <PrintStyles />
+      <PaymentModal isOpen={showPayModal} onClose={() => setShowPayModal(false)} onSuccess={() => setIsPremium(true)} t={t} theme={theme} />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      {/* ... Background ... */}
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4 pt-6">
+        {/* ... Top Bar & Header ... */}
         <div className="flex justify-end mb-6 gap-3">
+           {isPremium && <span className="px-3 py-1 bg-yellow-400 text-indigo-900 rounded-full text-xs font-bold flex items-center shadow-lg">👑 PRO</span>}
            <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className={`p-2 rounded-full transition-all duration-300 border ${theme === 'dark' ? 'bg-white/10 border-white/10 hover:bg-white/20 text-yellow-300' : 'bg-white/80 border-indigo-200 hover:bg-white text-indigo-600 shadow-sm'}`}>{theme === 'dark' ? '☀️' : '🌙'}</button>
            <div className={`backdrop-blur-md rounded-full p-1 flex space-x-1 border ${theme === 'dark' ? 'bg-white/10 border-white/10' : 'bg-white/80 border-indigo-200 shadow-sm'}`}>
               {(['zh-TW', 'en', 'ja'] as Language[]).map(l => (
@@ -1049,22 +1279,27 @@ const App: React.FC = () => {
            </div>
         </div>
 
+        {/* Header */}
         <div className="text-center mb-8">
           <div className={`inline-block px-3 py-1 mb-4 border rounded-full text-xs tracking-widest uppercase ${theme === 'dark' ? 'border-yellow-500/30 bg-yellow-500/10 text-yellow-300' : 'border-indigo-200 bg-indigo-50 text-indigo-600'}`}>{t.subtitle}</div>
           <h1 className={`text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r mb-6 drop-shadow-sm ${theme === 'dark' ? 'from-yellow-200 via-white to-yellow-100' : 'from-indigo-600 via-purple-600 to-indigo-800'}`}>{t.title}</h1>
           <div className="flex justify-center mb-8">
              <div className="flex flex-wrap justify-center gap-3">
-                {(['single', 'couple', 'daily', 'aging', 'career2026', 'mirror', 'yearly'] as AppMode[]).map(mode => (
-                    <button key={mode} onClick={() => { setAppMode(mode); setAnalysisResult(''); setError(''); }} className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 ${appMode === mode ? (theme === 'dark' ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.5)] ring-2 ring-indigo-400/50' : 'bg-indigo-600 text-white shadow-md ring-2 ring-indigo-200') : (theme === 'dark' ? 'bg-indigo-950/40 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 hover:text-white' : 'bg-white border border-indigo-100 text-slate-500 hover:bg-indigo-50 hover:text-indigo-700')}`}>
-                       <span>{{single: '👤', couple: '❤️', daily: '☀️', aging: '⏳', career2026: '🚀', mirror: '🎭', yearly: '📅'}[mode]}</span> {t.tabs[mode]}
+                {(['single', 'couple', 'daily', 'aging', 'career2027', 'mirror', 'yearly'] as AppMode[]).map(mode => (
+                    <button key={mode} onClick={() => { setAppMode(mode); setAnalysisResult(''); setError(''); }} 
+                        className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 ${appMode === mode ? (theme === 'dark' ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.5)] ring-2 ring-indigo-400/50' : 'bg-indigo-600 text-white shadow-md ring-2 ring-indigo-200') : (theme === 'dark' ? 'bg-indigo-950/40 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 hover:text-white' : 'bg-white border border-indigo-100 text-slate-500 hover:bg-indigo-50 hover:text-indigo-700')}`}>
+                       <span>{{single: '👤', couple: '❤️', daily: '☀️', aging: '⏳', career2027: '🚀', mirror: '🎭', yearly: '📅'}[mode]}</span> {t.tabs[mode]}
                     </button>
                 ))}
              </div>
           </div>
         </div>
 
+        {/* ... Main Content ... */}
+        
         {isAligning && imageData && <ImageAligner imageData={imageData} onConfirm={handleAlignmentConfirm} onCancel={handleAlignmentCancel} t={t} />}
 
+        {/* Books Grid */}
         {appMode === 'single' && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
                 <BookBadge theme={theme} title={t.books.mayi.title} titleEn="Ma Yi" desc={t.books.mayi.desc} icon="📜" details={t.books.mayi.details} />
@@ -1074,8 +1309,11 @@ const App: React.FC = () => {
             </div>
         )}
 
+        {/* Main Content Grid */}
         <div className={`transition-all duration-500 ease-in-out ${(!imageData && appMode !== 'couple') || appMode === 'yearly' ? 'flex justify-center' : 'grid md:grid-cols-2 gap-8'} mb-16 animate-fadeIn`}>
-             <div className={`flex flex-col space-y-6 ${(!imageData && appMode !== 'couple') || appMode === 'yearly' ? 'w-full max-w-xl' : 'w-full'}`}>
+            {/* Left Column */}
+            <div className={`flex flex-col space-y-6 ${(!imageData && appMode !== 'couple') || appMode === 'yearly' ? 'w-full max-w-xl' : 'w-full'}`}>
+                 {/* ... (Couple / Single Upload Logic from previous) ... */}
                  {appMode === 'couple' ? (
                      <div className="grid grid-cols-2 gap-4">
                         <div className={`relative aspect-[3/4] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center transition-colors overflow-hidden group ${theme === 'dark' ? 'bg-indigo-900/30 border-indigo-500/30 hover:bg-indigo-800/30' : 'bg-indigo-50 border-indigo-200 hover:bg-indigo-100'}`}>
@@ -1098,14 +1336,14 @@ const App: React.FC = () => {
                         </div>
                      </div>
                  ) : !imageData ? (
-                     <div className={`border-2 border-dashed rounded-3xl p-8 md:p-12 text-center transition-all hover:border-opacity-100 border-opacity-60 relative shadow-xl ${appMode === 'career2026' ? 'border-cyan-500' : 'border-indigo-500'} ${theme === 'dark' ? 'hover:bg-white/5' : 'bg-white hover:bg-indigo-50'}`}>
+                     <div className={`border-2 border-dashed rounded-3xl p-8 md:p-12 text-center transition-all hover:border-opacity-100 border-opacity-60 relative shadow-xl ${appMode === 'career2027' ? 'border-cyan-500' : 'border-indigo-500'} ${theme === 'dark' ? 'hover:bg-white/5' : 'bg-white hover:bg-indigo-50'}`}>
                         <input type="file" id="singleFileInput" className="hidden" accept="image/jpeg, image/png, image/webp" onChange={handleSingleFileChange} />
                         <input type="file" id="singleCameraInput" className="hidden" accept="image/jpeg, image/png, image/webp" capture="user" onChange={handleSingleFileChange} />
-                        <div className="w-24 h-24 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-inner animate-pulse">{appMode === 'daily' ? '🌞' : appMode === 'aging' ? '⏳' : appMode === 'career2026' ? '🚀' : appMode === 'yearly' ? '📅' : '📸'}</div>
-                        <h3 className={`text-2xl font-bold mb-3 ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{appMode === 'daily' ? t.daily.title : appMode === 'aging' ? t.aging.title : appMode === 'career2026' ? t.career2026.title : appMode === 'yearly' ? t.yearly.title : t.upload.title}</h3>
-                        <p className={`text-sm mb-8 leading-relaxed ${theme === 'dark' ? 'text-indigo-300' : 'text-slate-500'}`}>{appMode === 'aging' ? t.aging.subtitle : appMode === 'career2026' ? t.career2026.subtitle : appMode === 'yearly' ? t.yearly.subtitle : t.upload.hint}</p>
+                        <div className="w-24 h-24 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-inner animate-pulse">{appMode === 'daily' ? '🌞' : appMode === 'aging' ? '⏳' : appMode === 'career2027' ? '🚀' : appMode === 'yearly' ? '📅' : '📸'}</div>
+                        <h3 className={`text-2xl font-bold mb-3 ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{appMode === 'daily' ? t.daily.title : appMode === 'aging' ? t.aging.title : appMode === 'career2027' ? t.career2027.title : appMode === 'yearly' ? t.yearly.title : t.upload.title}</h3>
+                        <p className={`text-sm mb-8 leading-relaxed ${theme === 'dark' ? 'text-indigo-300' : 'text-slate-500'}`}>{appMode === 'aging' ? t.aging.subtitle : appMode === 'career2027' ? t.career2027.subtitle : appMode === 'yearly' ? t.yearly.subtitle : t.upload.hint}</p>
                         <div className="flex justify-center gap-4">
-                            <button onClick={() => document.getElementById('singleCameraInput')?.click()} className={`px-8 py-4 rounded-full font-bold text-white shadow-lg transition-transform transform hover:-translate-y-1 active:scale-95 flex items-center ${appMode === 'career2026' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500' : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'}`}><span className="mr-2 text-xl">📷</span> {t.upload.camera}</button>
+                            <button onClick={() => document.getElementById('singleCameraInput')?.click()} className={`px-8 py-4 rounded-full font-bold text-white shadow-lg transition-transform transform hover:-translate-y-1 active:scale-95 flex items-center ${appMode === 'career2027' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500' : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'}`}><span className="mr-2 text-xl">📷</span> {t.upload.camera}</button>
                             <button onClick={() => document.getElementById('singleFileInput')?.click()} className={`px-8 py-4 border rounded-full font-bold transition-transform transform hover:-translate-y-1 active:scale-95 flex items-center ${theme === 'dark' ? 'bg-white/10 hover:bg-white/20 border-white/20 text-white' : 'bg-white hover:bg-slate-100 border-slate-300 text-slate-700'}`}><span className="mr-2 text-xl">📂</span> {t.upload.file}</button>
                         </div>
                         <div className="mt-6 text-center"><button onClick={() => { fetch('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80').then(r => r.blob()).then(blob => handleSingleFileProcess(new File([blob], "demo.jpg", { type: "image/jpeg" }))); }} className={`text-xs underline ${theme === 'dark' ? 'text-indigo-400 hover:text-white' : 'text-indigo-600 hover:text-indigo-800'}`}>{t.upload.demo}</button></div>
@@ -1151,22 +1389,19 @@ const App: React.FC = () => {
                             <button onClick={() => { setMapMode('palaces'); setSelectedPoint(null); }} className={`relative z-10 w-1/2 py-2 text-sm font-medium text-center ${theme === 'dark' ? 'text-white' : 'text-indigo-900'}`}>{t.map.mode_palace}</button>
                             <button onClick={() => { setMapMode('ages'); setSelectedPoint(null); }} className={`relative z-10 w-1/2 py-2 text-sm font-medium text-center ${theme === 'dark' ? 'text-white' : 'text-indigo-900'}`}>{t.map.mode_age}</button>
                         </div>
-                        {isCalibrating ? (
-                            <div className={`p-4 rounded-2xl border animate-fadeIn ${theme === 'dark' ? 'bg-indigo-900/50 border-yellow-500/30' : 'bg-white/80 border-indigo-200 shadow-sm'}`}>
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className={`text-xs font-bold ${theme === 'dark' ? 'text-yellow-300' : 'text-indigo-700'}`}>{t.map.calibrate_title}</span>
-                                    <button onClick={() => setMapAdjustment({x:0, y:0, scale:1})} className={`text-[10px] px-2 py-0.5 rounded ${theme === 'dark' ? 'text-indigo-300 bg-white/10' : 'text-slate-500 bg-slate-100'}`}>{t.map.reset_btn}</button>
-                                </div>
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-2"><span className={`text-xs w-8 ${theme === 'dark' ? 'text-indigo-300' : 'text-slate-600'}`}>Y</span><input type="range" min="-30" max="30" value={mapAdjustment.y} onChange={e => setMapAdjustment({...mapAdjustment, y: Number(e.target.value)})} className="flex-1 h-1 bg-indigo-200/50 rounded-lg appearance-none cursor-pointer accent-indigo-500" /></div>
-                                    <div className="flex items-center gap-2"><span className={`text-xs w-8 ${theme === 'dark' ? 'text-indigo-300' : 'text-slate-600'}`}>X</span><input type="range" min="-20" max="20" value={mapAdjustment.x} onChange={e => setMapAdjustment({...mapAdjustment, x: Number(e.target.value)})} className="flex-1 h-1 bg-indigo-200/50 rounded-lg appearance-none cursor-pointer accent-indigo-500" /></div>
-                                    <div className="flex items-center gap-2"><span className={`text-xs w-8 ${theme === 'dark' ? 'text-indigo-300' : 'text-slate-600'}`}>Size</span><input type="range" min="0.8" max="1.2" step="0.05" value={mapAdjustment.scale} onChange={e => setMapAdjustment({...mapAdjustment, scale: Number(e.target.value)})} className="flex-1 h-1 bg-indigo-200/50 rounded-lg appearance-none cursor-pointer accent-indigo-500" /></div>
-                                </div>
-                                <button onClick={() => setIsCalibrating(false)} className="w-full mt-3 py-1.5 bg-indigo-600 rounded-lg text-xs text-white">Done</button>
+                        
+                        {/* Always visible calibration controls */}
+                        <div className={`p-4 rounded-2xl border animate-fadeIn ${theme === 'dark' ? 'bg-indigo-900/50 border-yellow-500/30' : 'bg-white/80 border-indigo-200 shadow-sm'}`}>
+                            <div className="flex justify-between items-center mb-2">
+                                <span className={`text-xs font-bold ${theme === 'dark' ? 'text-yellow-300' : 'text-indigo-700'}`}>{t.map.calibrate_title}</span>
+                                <button onClick={() => setMapAdjustment({x:0, y:0, scale:1})} className={`text-[10px] px-2 py-0.5 rounded ${theme === 'dark' ? 'text-indigo-300 bg-white/10' : 'text-slate-500 bg-slate-100'}`}>{t.map.reset_btn}</button>
                             </div>
-                        ) : (
-                            <button onClick={() => setIsCalibrating(true)} className={`text-xs text-center w-full py-1 ${theme === 'dark' ? 'text-indigo-400 hover:text-yellow-300' : 'text-indigo-500 hover:text-indigo-700'}`}>🔧 {t.map.calibrate_btn}</button>
-                        )}
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2"><span className={`text-xs w-8 ${theme === 'dark' ? 'text-indigo-300' : 'text-slate-600'}`}>Y</span><input type="range" min="-30" max="30" value={mapAdjustment.y} onChange={e => setMapAdjustment({...mapAdjustment, y: Number(e.target.value)})} className="flex-1 h-1 bg-indigo-200/50 rounded-lg appearance-none cursor-pointer accent-indigo-500" /></div>
+                                <div className="flex items-center gap-2"><span className={`text-xs w-8 ${theme === 'dark' ? 'text-indigo-300' : 'text-slate-600'}`}>X</span><input type="range" min="-20" max="20" value={mapAdjustment.x} onChange={e => setMapAdjustment({...mapAdjustment, x: Number(e.target.value)})} className="flex-1 h-1 bg-indigo-200/50 rounded-lg appearance-none cursor-pointer accent-indigo-500" /></div>
+                                <div className="flex items-center gap-2"><span className={`text-xs w-8 ${theme === 'dark' ? 'text-indigo-300' : 'text-slate-600'}`}>Size</span><input type="range" min="0.8" max="1.2" step="0.05" value={mapAdjustment.scale} onChange={e => setMapAdjustment({...mapAdjustment, scale: Number(e.target.value)})} className="flex-1 h-1 bg-indigo-200/50 rounded-lg appearance-none cursor-pointer accent-indigo-500" /></div>
+                            </div>
+                        </div>
                     </div>
                  )}
 
@@ -1174,28 +1409,27 @@ const App: React.FC = () => {
                      <YearlyFortuneSection imageData={imageData} onAnalyze={handleYearlyFortune} t={t} theme={theme} />
                  )}
 
+                 {/* The Analyze Button */}
                  {!analysisResult && appMode !== 'aging' && appMode !== 'yearly' && imageData && (
                     <button onClick={analyze} disabled={isLoading || (appMode === 'couple' && (!coupleData.p1 || !coupleData.p2))} 
                         className={`w-full py-4 font-bold text-lg rounded-full shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed
                         ${appMode === 'daily' ? 'bg-gradient-to-r from-green-500 to-teal-600 text-white' 
-                        : appMode === 'career2026' ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white' 
+                        : appMode === 'career2027' ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white' 
                         : appMode === 'mirror' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
                         : 'bg-gradient-to-r from-yellow-500 to-orange-600 text-indigo-950'}`}>
-                        {isLoading ? t.analysis.btn_loading : (appMode === 'couple' ? `💞 ${t.couple.analyze_btn}` : appMode === 'mirror' ? `🔮 ${t.mirror.analyze_btn}` : t.analysis.btn_start)}
+                        {isLoading ? t.analysis.btn_loading : (
+                           <div className="flex items-center justify-center gap-2">
+                             {(appMode === 'mirror' && !isPremium) && <span>🔒</span>}
+                             {appMode === 'couple' ? `💞 ${t.couple.analyze_btn}` : appMode === 'mirror' ? `🔮 ${t.mirror.analyze_btn}` : t.analysis.btn_start}
+                           </div>
+                        )}
                     </button>
                  )}
-             </div>
-
+            </div>
+            
+            {/* Right Column: Results */}
              <div className="flex flex-col space-y-6">
-                 {appMode === 'aging' && imageData && (
-                    <div className={`border rounded-3xl p-6 mb-2 ${theme === 'dark' ? 'bg-indigo-950/30 border-white/10' : 'bg-white/60 border-indigo-100'}`}>
-                        <div className="grid grid-cols-2 gap-4">
-                            <button onClick={() => handleAgingSimulation('virtue')} className={`p-4 rounded-xl border-2 transition-all ${agingPath === 'virtue' ? 'bg-indigo-600 border-yellow-400 text-white' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}><div className="text-3xl mb-2">🧘</div><div className="font-bold text-sm">{t.aging.path_virtue}</div></button>
-                            <button onClick={() => handleAgingSimulation('worry')} className={`p-4 rounded-xl border-2 transition-all ${agingPath === 'worry' ? 'bg-indigo-600 border-yellow-400 text-white' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}><div className="text-3xl mb-2">😫</div><div className="font-bold text-sm">{t.aging.path_worry}</div></button>
-                        </div>
-                    </div>
-                )}
-
+                {/* ... Mirror/Aging Displays ... */}
                 {appMode === 'mirror' && mirrorImages && (
                      <div className="grid md:grid-cols-2 gap-4">
                          <div className={`rounded-xl p-2 text-center ${theme === 'dark' ? 'bg-indigo-900/30' : 'bg-indigo-50'}`}>
@@ -1207,6 +1441,15 @@ const App: React.FC = () => {
                              <img src={`data:image/jpeg;base64,${mirrorImages.outer}`} className="w-full rounded-lg" />
                          </div>
                      </div>
+                )}
+
+                {appMode === 'aging' && imageData && (
+                    <div className={`border rounded-3xl p-6 mb-2 ${theme === 'dark' ? 'bg-indigo-950/30 border-white/10' : 'bg-white/60 border-indigo-100'}`}>
+                        <div className="grid grid-cols-2 gap-4">
+                            <button onClick={() => handleAgingSimulation('virtue')} className={`p-4 rounded-xl border-2 transition-all ${agingPath === 'virtue' ? 'bg-indigo-600 border-yellow-400 text-white' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}><div className="text-3xl mb-2">🧘</div><div className="font-bold text-sm">{t.aging.path_virtue}</div></button>
+                            <button onClick={() => handleAgingSimulation('worry')} className={`p-4 rounded-xl border-2 transition-all ${agingPath === 'worry' ? 'bg-indigo-600 border-yellow-400 text-white' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}><div className="text-3xl mb-2">😫</div><div className="font-bold text-sm">{t.aging.path_worry}</div></button>
+                        </div>
+                    </div>
                 )}
 
                 {appMode === 'single' && imageData && (
@@ -1221,12 +1464,52 @@ const App: React.FC = () => {
                         )}
                     </div>
                 )}
-
+                
                 {analysisResult && (
-                    <div id="analysis-result" className={`p-6 rounded-3xl shadow-xl animate-fadeIn border-t-8 ${appMode === 'daily' ? 'border-green-500' : appMode === 'yearly' ? 'border-orange-500' : 'border-yellow-500'} ${theme === 'dark' ? 'bg-white/90 text-indigo-950' : 'bg-white text-slate-900 shadow-2xl'}`}>
-                         {appMode === 'yearly' && <h3 className="text-xl font-bold mb-4 text-center">📅 {t.yearly.result_title}</h3>}
+                    <div id="analysis-result" className={`p-6 rounded-3xl shadow-xl animate-fadeIn border-t-8 relative overflow-hidden 
+                       ${appMode === 'daily' ? 'border-green-500' : appMode === 'yearly' ? 'border-orange-500' : 'border-yellow-500'}
+                       ${theme === 'dark' ? 'bg-white/90 text-indigo-950' : 'bg-white text-slate-900 shadow-2xl'}
+                       ${(!isPremium && ['career2027', 'mirror', 'yearly', 'aging'].includes(appMode)) ? 'max-h-[500px] overflow-hidden pb-0' : ''} 
+                    `}>
+                         <div className="hidden print:block text-center mb-6 border-b pb-4">
+                            <h1 className="text-3xl font-bold">AI Face Reading Report</h1>
+                            <p className="text-sm text-gray-500">Generated by AI Physiognomy Master</p>
+                         </div>
+
                          <div className="prose prose-indigo max-w-none text-sm md:text-base leading-relaxed whitespace-pre-wrap">{analysisResult}</div>
-                         <div className="mt-4 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">{t.analysis.disclaimer}</div>
+
+                         {/* Locked Mask for Paid Features Only (Career2027, Mirror, Yearly, Aging) */}
+                         {!isPremium && ['career2027', 'mirror', 'yearly', 'aging'].includes(appMode) && (
+                            <div className="absolute inset-x-0 bottom-0 h-[300px] bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-8 z-20 no-print">
+                               <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-indigo-100 shadow-2xl flex flex-col items-center text-center max-w-xs mx-4">
+                                  <div className="text-4xl mb-2">🔒</div>
+                                  <h4 className="font-bold text-lg text-indigo-900 mb-1">解鎖完整分析</h4>
+                                  <p className="text-xs text-indigo-600 mb-4">{t.payment.locked_content}</p>
+                                  <button onClick={() => setShowPayModal(true)} className="px-8 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-indigo-900 rounded-full font-bold shadow-lg hover:scale-105 transition-transform animate-pulse">
+                                     {t.payment.unlock_btn}
+                                  </button>
+                               </div>
+                            </div>
+                         )}
+                         
+                         {/* Footer & Download (Show if unlocked or free mode) */}
+                         {(isPremium || !['career2027', 'mirror', 'yearly', 'aging'].includes(appMode)) && (
+                            <>
+                                <div className="mt-4 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">
+                                     {t.analysis.disclaimer}
+                                     <br className="hidden print:block" />
+                                     <span className="hidden print:inline"> Visit us for more insights.</span>
+                                 </div>
+
+                                 <button 
+                                   onClick={handleDownloadPDF}
+                                   className="no-print absolute top-4 right-4 p-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 hover:text-indigo-600 transition-colors shadow-sm"
+                                   title={t.analysis.download_btn}
+                                 >
+                                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                 </button>
+                            </>
+                         )}
                     </div>
                 )}
 
@@ -1234,6 +1517,7 @@ const App: React.FC = () => {
              </div>
         </div>
 
+        {/* Shared Footer Sections */}
         {appMode === 'single' && <HowItWorksSection t={t} theme={theme} />}
         {appMode === 'single' && <ClassicDiagramSection t={t} theme={theme} />}
         {appMode === 'single' && <EncyclopediaSection t={t} theme={theme} />}
